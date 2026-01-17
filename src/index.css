@@ -328,3 +328,102 @@ body {
   color: #888;
   font-weight: 600;
 }
+
+/* Balance Sheet */
+.balance-sheet {
+  background: linear-gradient(135deg, #1a4d2e 0%, #2d5016 100%);
+  padding: 32px;
+  border-radius: 16px;
+  margin-bottom: 32px;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.balance-sheet h2 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 24px;
+  color: #10B981;
+}
+
+.balance-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 24px;
+}
+
+.balance-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.balance-label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.balance-value {
+  font-size: 28px;
+  font-weight: 800;
+  color: #FFF;
+}
+
+.balance-usd {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.balance-growth {
+  font-size: 14px;
+  color: #10B981;
+  font-weight: 700;
+}
+
+/* Communication Feed */
+.communication-feed {
+  grid-column: 1 / -1;
+}
+
+.feed-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.feed-item {
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid #222;
+  border-radius: 8px;
+  border-left: 3px solid #6366F1;
+}
+
+.feed-time {
+  font-size: 11px;
+  color: #888;
+  margin-bottom: 8px;
+}
+
+.feed-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #FFF;
+  margin-bottom: 6px;
+}
+
+.feed-text {
+  font-size: 14px;
+  color: #DDD;
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.feed-meta {
+  font-size: 12px;
+  color: #888;
+  font-weight: 500;
+}

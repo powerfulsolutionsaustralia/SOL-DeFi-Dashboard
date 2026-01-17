@@ -32,11 +32,20 @@ interface YieldReport {
     created_at: string
 }
 
+interface ActivityItem {
+    id: string
+    agent_name: string
+    action_type: string
+    details: any
+    created_at: string
+}
+
 export default function App() {
     const [balance, setBalance] = useState<number>(0)
     const [goal, setGoal] = useState<Goal | null>(null)
     const [latestDecision, setLatestDecision] = useState<any>(null)
     const [opportunities, setOpportunities] = useState<YieldReport[]>([])
+    const [activityFeed, setActivityFeed] = useState<ActivityItem[]>([])
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
@@ -110,6 +119,15 @@ export default function App() {
 
         if (oppsData) setOpportunities(oppsData)
 
+        // Get recent activity
+        const { data: activityData } = await supabase
+            .from('agent_actions')
+            .select('*')
+            .order('created_at', { ascending: false })
+            .limit(10)
+
+        if (activityData) setActivityFeed(activityData)
+
         setLoading(false)
     }
 
@@ -136,6 +154,28 @@ export default function App() {
                 <div className="value-growth">
                     <ArrowUpRight size={16} />
                     +8.4% APY
+                </div>
+            </div>
+
+            {/* Balance Sheet */}
+            <div className="balance-sheet">
+                <h2>Balance Sheet</h2>
+                <div className="balance-grid">
+                    <div className="balance-item">
+                        <span className="balance-label">Current Holdings</span>
+                        <span className="balance-value">{balance.toFixed(4)} SOL</span>
+                        <span className="balance-usd">${(balance * 100).toFixed(2)} USD</span>
+                    </div>
+                    <div className="balance-item">
+                        <span className="balance-label">7-Day Projection</span>
+                        <span className="balance-value">{goal ? ((balance * Math.pow(1 + (goal.target_apy / 100 / 365), 7))).toFixed(4) : '--'} SOL</span>
+                        <span className="balance-growth">+{goal ? ((Math.pow(1 + (goal.target_apy / 100 / 365), 7) - 1) * 100).toFixed(2) : '--'}%</span>
+                    </div>
+                    <div className="balance-item">
+                        <span className="balance-label">30-Day Projection</span>
+                        <span className="balance-value">{goal ? ((balance * Math.pow(1 + (goal.target_apy / 100 / 365), 30))).toFixed(4) : '--'} SOL</span>
+                        <span className="balance-growth">+{goal ? ((Math.pow(1 + (goal.target_apy / 100 / 365), 30) - 1) * 100).toFixed(2) : '--'}%</span>
+                    </div>
                 </div>
             </div>
 
@@ -206,6 +246,44 @@ export default function App() {
                             <div>Daily Compound Rate</div>
                             <div className="formula-value">{goal ? ((goal.target_apy / 365) / 100).toFixed(4) : '--'}%</div>
                         </div>
+                    </div>
+                </div>
+
+                {/* Agent Communication Feed */}
+                <div className="card communication-feed">
+                    <div className="card-header">
+                        <Activity size={20} />
+                        <h3>Agent Communications</h3>
+                    </div>
+                    <div className="feed-list">
+                        {activityFeed.map((item) => (
+                            <div key={item.id} className="feed-item">
+                                <div className="feed-time">
+                                    {new Date(item.created_at).toLocaleTimeString()}
+                                </div>
+                                <div className="feed-content">
+                                    {item.action_type === 'STRATEGY_DECISION' && (
+                                        <>
+                                            <div className="feed-title">🧠 AI Decision</div>
+                                            <div className="feed-text">{item.details.advice}</div>
+                                            <div className="feed-meta">Action: {item.details.action} | Pathway: {item.details.pathway}</div>
+                                        </>
+                                    )}
+                                    {item.action_type === 'BALANCE_CHECK' && (
+                                        <>
+                                            <div className="feed-title">💰 Balance Update</div>
+                                            <div className="feed-text">Current: {item.details.balance?.toFixed(4)} SOL</div>
+                                        </>
+                                    )}
+                                    {item.action_type === 'GOAL_PROGRESS' && (
+                                        <>
+                                            <div className="feed-title">🎯 Goal Progress</div>
+                                            <div className="feed-text">Tracking toward target at {item.details.current_apy}% APY</div>
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </div>
 
