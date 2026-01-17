@@ -108,18 +108,21 @@ export class SolanaAgent {
                     created_at: new Date().toISOString()
                 });
 
-                // CONSULT THE BRAIN
-                const advice = await this.brain.analyzeStrategy(
+                // CONSULT THE BRAIN (Intelligence Feed)
+                const decision = await this.brain.analyzeStrategy(
                     { quote, outAmountUSDC, rate: (outAmountUSDC * 10) },
                     { address: this.wallet.publicKey.toBase58(), balance: (await this.connection.getBalance(this.wallet.publicKey)) / LAMPORTS_PER_SOL }
                 );
 
-                console.log(`🧠 Brain Advice: ${advice.advice}`);
-                console.log(`🚀 Pathway: ${advice.pathway}`);
+                console.log(`🧠 Brain Advice: ${decision.advice}`);
+                console.log(`🚀 Pathway: ${decision.pathway}`);
 
-                if (advice.action === 'SWAP') {
-                    console.log("⚡ Executing Swap based on AI Advice...");
-                    // await this.executeSwap(quote);
+                // FLIP THE SWITCH: Live Trading Enabled
+                if (decision.action === 'SWAP') {
+                    console.log("⚡ Brain says SWAP! Executing autonomous trade...");
+                    await this.executeSwap(quote);
+                } else {
+                    console.log("🛡️ Brain says HOLD. Monitoring for next opportunity...");
                 }
             }
 
