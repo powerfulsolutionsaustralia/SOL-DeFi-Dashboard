@@ -11,9 +11,11 @@ import {
     Wallet,
     Server,
     Brain,
-    ZapOff,
+    Layers,
     ChevronRight,
-    Maximize2
+    Gauge,
+    ArrowUpRight,
+    Database
 } from 'lucide-react'
 import './index.css'
 
@@ -44,17 +46,17 @@ export default function App() {
     const [balance, setBalance] = useState<number>(0)
     const [loading, setLoading] = useState(true)
     const [isScanning, setIsScanning] = useState(false)
-    const [systemTime, setSystemTime] = useState(new Date().toISOString())
+    const [systemTime, setSystemTime] = useState(new Date().toLocaleTimeString())
 
     useEffect(() => {
         fetchInitialData()
-        const timer = setInterval(() => setSystemTime(new Date().toISOString()), 1000)
+        const timer = setInterval(() => setSystemTime(new Date().toLocaleTimeString()), 1000)
 
         // Real-time Subscriptions
         const yieldSub = supabase
             .channel('yield_reports')
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'yield_reports' }, payload => {
-                setReports(prev => [payload.new as YieldReport, ...prev].slice(0, 25))
+                setReports(prev => [payload.new as YieldReport, ...prev].slice(0, 20))
                 triggerScanEffect()
             })
             .subscribe()
@@ -63,7 +65,7 @@ export default function App() {
             .channel('agent_actions')
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'agent_actions' }, payload => {
                 const newAction = payload.new as AgentAction
-                setActions(prev => [newAction, ...prev].slice(0, 25))
+                setActions(prev => [newAction, ...prev].slice(0, 20))
                 if (newAction.action_type === 'BALANCE_CHECK') {
                     setBalance(newAction.details.balance)
                 }
@@ -82,13 +84,13 @@ export default function App() {
             .from('yield_reports')
             .select('*')
             .order('created_at', { ascending: false })
-            .limit(25)
+            .limit(20)
 
         const { data: actionData } = await supabase
             .from('agent_actions')
             .select('*')
             .order('created_at', { ascending: false })
-            .limit(25)
+            .limit(20)
 
         const { data: balanceData } = await supabase
             .from('agent_actions')
@@ -108,200 +110,227 @@ export default function App() {
         setTimeout(() => setIsScanning(false), 2000)
     }
 
-    const latestDecision = actions.find(a => a.action_type === 'STRATEGY_DECISION')?.details || { advice: "Analyzing market sentiment...", pathway: "Neural-Static", action: "MONITOR" }
+    const latestDecision = actions.find(a => a.action_type === 'STRATEGY_DECISION')?.details || { advice: "Synchronizing brain kernels...", pathway: "Stable-Beta", action: "MONITOR" }
 
     return (
-        <div className="min-h-screen relative font-sans">
-            <div className="app-bg" />
-            <div className="scan-overlay" />
+        <div className="relative min-h-screen">
+            {/* Immersive Aurora Background */}
+            <div className="aurora-bg">
+                <div className="aurora-blob blob-1" />
+                <div className="aurora-blob blob-2" />
+                <div className="aurora-blob blob-3" />
+            </div>
 
-            {/* Top Navigation / Branding */}
-            <nav className="p-8 pb-4 flex justify-between items-start max-w-[1600px] mx-auto">
-                <div>
-                    <div className="flex items-center gap-4 mb-1">
-                        <div className="w-8 h-8 rounded-sm bg-accent-blue/20 border border-accent-blue/30 flex items-center justify-center">
-                            <TrendingUp size={16} className="text-accent-blue" strokeWidth={3} />
-                        </div>
-                        <h2 className="exec-header text-2xl tracking-tighter">SOLANA_HQ</h2>
+            {/* Premium Header Nav */}
+            <nav className="p-8 pb-0 flex justify-between items-center max-w-[1700px] mx-auto">
+                <div className="flex items-center gap-6">
+                    <div className="p-3 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 shadow-xl">
+                        <TrendingUp size={24} className="text-aurora-green" />
                     </div>
-                    <div className="flex gap-4">
-                        <span className="status-tag tag-active"><div className="w-1.5 h-1.5 bg-accent-solana rounded-full animate-pulse" /> Mainnet Live</span>
-                        <span className="status-tag">V2.4_OBSIDIAN</span>
+                    <div>
+                        <h1 className="hero-display text-3xl mb-1">AURORA_INTEL</h1>
+                        <div className="flex gap-3">
+                            <div className="flex items-center gap-2 px-3 py-1 bg-aurora-green/10 text-aurora-green text-[10px] font-bold rounded-full border border-aurora-green/20">
+                                <div className="w-1.5 h-1.5 bg-aurora-green rounded-full animate-pulse shadow-[0_0_8px_var(--aurora-green)]" />
+                                SOLANA_MAINNET_LIVE
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div className="text-right flex flex-col items-end gap-2">
-                    <div className="status-tag font-mono text-[9px] px-3 py-1">SYS_TIME: {systemTime}</div>
-                    <div className="flex gap-2">
-                        <span className="status-tag hover:border-accent-blue transition-colors cursor-pointer group">
-                            <Maximize2 size={10} className="group-hover:text-accent-blue" />
-                        </span>
+                <div className="diamond-card py-3 px-6 rounded-full flex items-center gap-6">
+                    <div className="text-right">
+                        <div className="text-[10px] font-black text-text-dim text-right">OPERATIONAL_TIME</div>
+                        <div className="font-mono text-sm tracking-widest">{systemTime}</div>
+                    </div>
+                    <div className="w-px h-8 bg-white/10" />
+                    <div className="text-right">
+                        <div className="text-[10px] font-black text-text-dim text-right">SYSTEM_INTEGRITY</div>
+                        <div className="text-aurora-green font-bold text-sm tracking-tighter">SECURE (99.9%)</div>
                     </div>
                 </div>
             </nav>
 
-            <main className="max-w-[1600px] mx-auto p-4 md:p-8 pt-0">
-                <div className="exec-grid">
+            <main className="max-w-[1700px] mx-auto p-8 grid grid-cols-12 gap-8">
 
-                    {/* Header Matrix Cell */}
-                    <div className="grid-cell lg:col-span-8 md:col-span-12 flex flex-col justify-end min-h-[300px]">
-                        <span className="exec-label mb-4">Strategic Intelligence Core</span>
-                        <h1 className="exec-header">AUTONOMOUS_CAPITAL</h1>
-                        <p className="mt-6 text-xl font-light text-text-secondary leading-snug max-w-2xl">
-                            Continuous market monitoring and execution via integrated xAI Intelligence. Operating at 400ms latency on Solana Mainnet.
-                        </p>
-                    </div>
+                {/* HERO: The Vault */}
+                <div className="col-span-12 lg:col-span-8">
+                    <div className="diamond-card h-full flex flex-col justify-between overflow-hidden relative">
+                        {/* Decorative Background Icon */}
+                        <div className="absolute -right-20 -bottom-20 opacity-[0.02] rotate-12 pointer-events-none">
+                            <Wallet size={500} />
+                        </div>
 
-                    {/* Capital Management Cell */}
-                    <div className="grid-cell lg:col-span-4 md:col-span-12 border-l border-obsidian-border flex flex-col justify-between">
                         <div>
-                            <span className="exec-label mb-8">Asset Valuation (SOL)</span>
-                            <div className="matrix-value">
-                                {loading ? '---' : balance.toFixed(4)}
-                                <span className="text-sm text-text-muted ml-3 tracking-widest font-sans font-black">SOL_BETA</span>
-                            </div>
-                        </div>
-                        <div className="pt-8 space-y-3">
-                            <div className="flex justify-between items-center text-[10px] font-bold text-text-muted">
-                                <span>ROI_PROJECTION</span>
-                                <span className="text-accent-solana">+8.4% APY_AVG</span>
-                            </div>
-                            <div className="h-[2px] bg-white/5 w-full relative">
-                                <div className="absolute top-0 left-0 h-full bg-accent-solana w-2/3 shadow-[0_0_10px_var(--accent-solana)]" />
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Infrastructure Health Matrix */}
-                    <div className="grid-cell lg:col-span-12 border-y border-obsidian-border">
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
-                            {[
-                                { title: 'Operational Status', st: 'Stable', icon: Server, col: 'accent-solana' },
-                                { title: 'xAI Intelligence', st: 'Deep Analysing', icon: Brain, col: 'accent-purple' },
-                                { title: 'Railway Instance', st: 'Continuous', icon: Activity, col: 'accent-blue' },
-                                { title: 'Execution Layer', st: 'Mainnet-B', icon: Zap, col: 'accent-solana' }
-                            ].map((s, i) => (
-                                <div key={i} className="flex items-center gap-6">
-                                    <div className={`p-3 bg-${s.col}/5 border border-${s.col}/10 rounded-full`}>
-                                        <s.icon size={20} className={`text-${s.col}`} strokeWidth={1.5} />
-                                    </div>
-                                    <div>
-                                        <div className="exec-label">{s.title}</div>
-                                        <div className="text-sm font-bold mt-1 text-text-primary tracking-tight">{s.st}</div>
-                                    </div>
+                            <span className="section-label">Institutional Asset Vault</span>
+                            <div className="flex items-end gap-6 mb-8 mt-4">
+                                <h2 className="hero-display">{loading ? '---' : balance.toFixed(4)}</h2>
+                                <div className="mb-4">
+                                    <span className="block text-2xl font-black text-text-dim tracking-tighter">SOL</span>
+                                    <span className="text-sm font-bold text-aurora-green flex items-center gap-1">
+                                        <ArrowUpRight size={14} /> +8.4% APY
+                                    </span>
                                 </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Strategic Brain Cell */}
-                    <div className="grid-cell lg:col-span-7 md:col-span-12 border-r border-obsidian-border relative group">
-                        <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-all duration-1000">
-                            <Brain size={140} strokeWidth={0.5} />
-                        </div>
-                        <span className="exec-label mb-8">Active Strategic Decision</span>
-                        <div className="space-y-6">
-                            <h3 className="text-3xl font-black italic leading-tight text-white/90">
-                                "{latestDecision.advice}"
-                            </h3>
-                            <div className="flex gap-4">
-                                <span className="status-tag py-2 px-4 border-accent-blue/30 text-accent-blue">Action: {latestDecision.action}</span>
-                                <span className="status-tag py-2 px-4 border-accent-purple/30 text-accent-purple">Logic: {latestDecision.pathway}</span>
                             </div>
+                            <p className="max-w-xl text-text-dim text-lg leading-relaxed font-light">
+                                Real-time valuation of your sub-custodial wallet deployed on Solana. Currently optimizing yields across Jupiter and Liquidity pools.
+                            </p>
                         </div>
-                    </div>
 
-                    {/* Metrics Dashboard Cell */}
-                    <div className="grid-cell lg:col-span-5 md:col-span-12">
-                        <span className="exec-label mb-8 underline decoration-white/10 underline-offset-8">Intelligence Metrics</span>
-                        <div className="space-y-4">
+                        <div className="mt-12 pt-8 border-t border-white/5 grid grid-cols-2 md:grid-cols-4 gap-8">
                             {[
-                                { label: 'Audit Points Scanned', val: reports.length },
-                                { label: 'Autonomous Rotations', val: actions.length },
-                                { label: 'Network Uptime', val: '99.9%' },
-                                { label: 'Average Execution Speed', val: '0.4s' }
+                                { label: 'Available Liquidity', val: `${balance.toFixed(4)} SOL`, icon: Layers },
+                                { label: 'Yield Accrued', val: '0.012 SOL', icon: Zap },
+                                { label: 'Active Strategies', val: '3', icon: Target },
+                                { label: 'Risk Profile', val: 'Delta-Neutral', icon: Shield }
                             ].map((m, i) => (
-                                <div key={i} className="matrix-row">
-                                    <span className="matrix-label">{m.label}</span>
-                                    <span className="matrix-val">{m.val}</span>
+                                <div key={i}>
+                                    <div className="flex items-center gap-2 text-text-ghost mb-1">
+                                        {m.icon && <m.icon size={12} />}
+                                        <span className="text-[9px] font-black uppercase tracking-widest">{m.label}</span>
+                                    </div>
+                                    <div className="text-sm font-bold tracking-tight">{m.val}</div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                {/* The Engine Room (Operational Status) */}
+                <div className="col-span-12 lg:col-span-4 space-y-8">
+                    <div className="diamond-card status-active">
+                        <span className="section-label">Engine_Room</span>
+                        <div className="space-y-6 mt-6">
+                            {[
+                                { name: 'Railway Cluster', status: 'Continuous', icon: Server, color: 'text-aurora-blue' },
+                                { name: 'xAI Reasoning', status: 'Deep_Learning', icon: Brain, color: 'text-aurora-purple' },
+                                { name: 'Solana RPC', status: 'Mainnet-B', icon: Database, color: 'text-aurora-green' },
+                                { name: 'Execution Layer', status: 'Active', icon: Gauge, color: 'text-aurora-green' }
+                            ].map((s, i) => (
+                                <div key={i} className="flex justify-between items-center group cursor-default">
+                                    <div className="flex items-center gap-4">
+                                        <div className={`p-2.5 bg-white/5 rounded-xl border border-white/10 group-hover:border-white/20 transition-all ${s.color}`}>
+                                            <s.icon size={18} strokeWidth={1.5} />
+                                        </div>
+                                        <div>
+                                            <div className="text-xs font-bold text-white">{s.name}</div>
+                                            <div className="text-[10px] text-text-dim font-medium">{s.status}</div>
+                                        </div>
+                                    </div>
+                                    <div className="status-indicator" />
                                 </div>
                             ))}
                         </div>
                     </div>
 
-                    {/* Logic Trace (Terminal) Cell */}
-                    <div className="grid-cell lg:col-span-8 md:col-span-12 border-t border-obsidian-border">
-                        <div className="flex justify-between items-center mb-8">
-                            <span className="exec-label">System_Logic_Trace</span>
-                            <div className="flex items-center gap-2">
-                                <div className="w-1.5 h-1.5 bg-accent-purple rounded-full animate-pulse" />
-                                <span className="text-[10px] font-bold text-text-muted">LIVE_KERNEL_TRACE</span>
+                    <div className="diamond-card bg-aurora-purple/5 border-aurora-purple/20">
+                        <span className="section-label text-aurora-purple">AI Strategic Alpha</span>
+                        <div className="mt-4">
+                            <div className="text-xl font-black italic tracking-tight text-white/90">
+                                "{latestDecision.advice}"
+                            </div>
+                            <div className="mt-6 flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/5">
+                                <div>
+                                    <div className="text-[9px] font-black text-text-dim">TARGET_OBJECTIVE</div>
+                                    <div className="text-xs font-bold text-aurora-purple uppercase">{latestDecision.action}</div>
+                                </div>
+                                <ArrowUpRight size={18} className="text-aurora-purple" />
                             </div>
                         </div>
-                        <div className="trace-container custom-scrollbar pr-4">
-                            {actions.map((a, i) => (
-                                <div key={a.id} className="trace-line">
-                                    <span className="trace-meta">TIMECASE_{new Date(a.created_at).toLocaleTimeString()} // ID_{a.id.slice(0, 8)}</span>
-                                    <div className="trace-body">
-                                        <span className="text-accent-blue font-bold mr-2">[{a.action_type}]</span>
-                                        {a.action_type === 'BALANCE_CHECK' ? (
-                                            `Core balance verified at ${a.details.balance} SOL. Asset remains liquid and deployable.`
-                                        ) : a.action_type === 'STRATEGY_DECISION' ? (
-                                            `Strategic judgment finalized Target objective identified via xAI analysis.`
-                                        ) : (
-                                            JSON.stringify(a.details)
-                                        )}
-                                        {a.action_type === 'STRATEGY_DECISION' && (
-                                            <div className="mt-4 p-4 bg-white/[0.03] border-l-2 border-accent-purple text-text-primary italic text-xs leading-relaxed">
-                                                {a.details.advice}
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
                     </div>
+                </div>
 
-                    {/* Market Scanner Cell */}
-                    <div className="grid-cell lg:col-span-4 md:col-span-12 border-t border-l border-obsidian-border">
+                {/* Live Data Flux & Kernels */}
+                <div className="col-span-12 grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {/* Data Flux Scanner */}
+                    <div className="diamond-card">
                         <div className="flex justify-between items-center mb-8">
-                            <span className="exec-label">Market_Flux_Scanner</span>
-                            {isScanning && <RefreshCw size={12} className="animate-spin text-accent-solana" />}
+                            <span className="section-label">Market_Yield_Flux</span>
+                            {isScanning && <div className="text-[10px] font-bold text-aurora-green animate-pulse">SCANNING_JUPITER...</div>}
                         </div>
-                        <div className="h-[450px] overflow-y-auto custom-scrollbar">
+                        <div className="flux-container custom-scrollbar h-[350px]">
                             {reports.map((r) => (
-                                <div key={r.id} className="flow-row group">
-                                    <div>
-                                        <div className="text-xs font-bold tracking-tight text-white group-hover:text-accent-solana transition-colors">{r.token}</div>
-                                        <div className="text-[9px] text-text-muted font-bold">{r.protocol}</div>
-                                    </div>
-                                    <div className="text-center">
-                                        <div className="text-xs font-mono font-bold text-accent-blue">{r.apy}%</div>
-                                        <div className="text-[8px] text-text-muted font-bold">APY</div>
+                                <div key={r.id} className="flux-row group">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-10 h-10 rounded-full bg-aurora-green/5 border border-aurora-green/10 flex items-center justify-center text-aurora-green font-bold text-[10px]">
+                                            {r.token.split(' ')[0]}
+                                        </div>
+                                        <div>
+                                            <div className="text-sm font-bold text-white group-hover:text-aurora-green transition-colors">{r.token}</div>
+                                            <div className="text-[10px] text-text-dim font-bold">{r.protocol} • SOLANA</div>
+                                        </div>
                                     </div>
                                     <div className="text-right">
-                                        <ChevronRight size={12} className="text-text-muted ml-auto cursor-pointer hover:text-white" />
+                                        <div className="text-lg font-black tracking-tighter text-aurora-green">{r.apy}%</div>
+                                        <div className="text-[9px] text-text-dim font-black tracking-widest uppercase">EST_APY</div>
                                     </div>
                                 </div>
                             ))}
                         </div>
                     </div>
 
+                    {/* System Logic Trace */}
+                    <div className="diamond-card">
+                        <div className="flex justify-between items-center mb-8">
+                            <span className="section-label">Alpha_Logic_Stream</span>
+                            <div className="status-indicator shadow-[0_0_10px_var(--aurora-purple)]" />
+                        </div>
+                        <div className="flux-container custom-scrollbar h-[350px] font-mono">
+                            {actions.map((a) => (
+                                <div key={a.id} className="mb-6 group">
+                                    <div className="flex justify-between text-[10px] text-text-dim mb-2 font-bold group-hover:text-aurora-purple transition-colors">
+                                        <span>SYS_LOG :: ID_{a.id.slice(0, 8)}</span>
+                                        <span>{new Date(a.created_at).toLocaleTimeString()}</span>
+                                    </div>
+                                    <div className="text-xs text-text-pure/80 leading-relaxed border-l-2 border-white/5 pl-4 py-1 group-hover:border-aurora-purple/50 transition-all">
+                                        {a.action_type === 'BALANCE_CHECK' ? (
+                                            <span className="text-aurora-blue font-bold tracking-tighter">[VALUATION_AUDIT]</span>
+                                        ) : (
+                                            <span className="text-aurora-purple font-bold tracking-tighter">[INTEL_JUDGMENT]</span>
+                                        )} {a.action_type === 'BALANCE_CHECK' ? `Balance verified: ${a.details.balance} SOL. Asset remains liquid.` : a.details.advice}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 </div>
+
             </main>
 
-            <footer className="max-w-[1600px] mx-auto p-8 pt-0 border-t border-obsidian-border/50">
-                <div className="flex flex-col md:flex-row justify-between items-center gap-6 mt-8">
-                    <div className="text-[10px] font-black text-text-muted tracking-[0.5em] uppercase">
-                        OBSIDIAN_INTELLIGENCE // SOLANA_AUTONOMY_v2
+            <footer className="max-w-[1700px] mx-auto p-12 pt-0 border-t border-white/5">
+                <div className="mt-12 flex flex-col md:flex-row justify-between items-center gap-8">
+                    <div className="text-[10px] font-black text-text-ghost tracking-[0.5em] uppercase">
+                        DESIGNED_BY_AURORA_INTELLIGENCE // v4.0.0_STABLE
                     </div>
-                    <div className="flex gap-12">
-                        <span className="exec-label cursor-pointer hover:text-white transition-colors">Documentation_Node</span>
-                        <span className="exec-label cursor-pointer hover:text-white transition-colors">Core_Audit_Log</span>
-                        <span className="exec-label cursor-pointer hover:text-white transition-colors">Liquidity_Pools</span>
+                    <div className="flex gap-12 font-black text-[9px] text-text-dim uppercase tracking-widest">
+                        <span className="cursor-pointer hover:text-white transition-colors">Core_Documentation</span>
+                        <span className="cursor-pointer hover:text-white transition-colors">Hedge_Vault_Audit</span>
+                        <span className="cursor-pointer hover:text-white transition-colors">API_Connectivity</span>
                     </div>
                 </div>
             </footer>
         </div>
+    )
+}
+
+// Missing Lucide Icon
+function Target({ size, className }: { size: number, className?: string }) {
+    return (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width={size}
+            height={size}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={className}
+        >
+            <circle cx="12" cy="12" r="10" />
+            <circle cx="12" cy="12" r="6" />
+            <circle cx="12" cy="12" r="2" />
+        </svg>
     )
 }
