@@ -1,4 +1,10 @@
 {
     "buildCommand": "npm run dashboard:build",
-    "outputDirectory": "packages/dashboard/dist"
+    "outputDirectory": "packages/dashboard/dist",
+    "rewrites": [
+        {
+            "source": "/(.*)",
+            "destination": "/index.html"
+        }
+    ]
 }
