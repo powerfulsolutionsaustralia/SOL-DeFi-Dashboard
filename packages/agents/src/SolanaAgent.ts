@@ -5,6 +5,7 @@ import fetch from 'cross-fetch';
 import dotenv from 'dotenv';
 import { BrainAgent } from './BrainAgent.js';
 import { GoalEngine } from './GoalEngine.js';
+import { OpportunityAggregator } from './scanners/OpportunityAggregator.js';
 
 dotenv.config();
 
@@ -17,12 +18,14 @@ export class SolanaAgent {
     private supabase: SupabaseClient;
     private brain: BrainAgent;
     private goalEngine: GoalEngine;
+    private opportunityAggregator: OpportunityAggregator;
     private currentBalance: number = 0;
     private currentAPY: number = 8.4; // Track estimated APY
 
     constructor() {
         this.brain = new BrainAgent();
         this.goalEngine = new GoalEngine();
+        this.opportunityAggregator = new OpportunityAggregator();
         // Initialize Supabase
         const supabaseUrl = process.env.SUPABASE_URL;
         const supabaseKey = process.env.SUPABASE_KEY;
@@ -57,18 +60,18 @@ export class SolanaAgent {
 
         const solBalance = await this.checkBalance();
         if (solBalance && solBalance > 0.05) {
-            await this.scanJupiterYields();
+            await this.scanDeFiYields();
         }
 
-        // Scan every 30 seconds
+        // Scan every 5 minutes (changed from 30 seconds for DeFi)
         setInterval(async () => {
             const solBalance = await this.checkBalance();
             if (solBalance && solBalance > 0.05) {
-                await this.scanJupiterYields();
+                await this.scanDeFiYields();
             } else {
-                console.log("💤 Balance too low to trade. Minimum 0.05 SOL recommended.");
+                console.log("💤 Balance too low to farm. Minimum 0.05 SOL recommended.");
             }
-        }, 30000);
+        }, 300000); // 5 minutes
     }
 
     async checkBalance() {
@@ -94,6 +97,62 @@ export class SolanaAgent {
             return solBalance;
         } catch (error: any) {
             console.error("Error checking balance:", error.message);
+        }
+    }
+
+    async scanDeFiYields() {
+        console.log("🌊 Scanning DeFi protocols for yield opportunities...");
+
+        try {
+            // Get all opportunities from all protocols
+            const opportunities = await this.opportunityAggregator.scanAll();
+
+            // Filter to only safe, high-yield opportunities
+            const filtered = this.opportunityAggregator.filter(opportunities, {
+                minAPY: 5,
+                maxRisk: 'medium',
+                minTVL: 1000000 // $1M minimum TVL
+            });
+
+            // Log top opportunities to Supabase
+            for (const opp of filtered.slice(0, 5)) {
+                await this.supabase.from('yield_reports').insert({
+                    protocol: opp.protocol,
+                    chain: 'Solana',
+                    token: opp.name,
+                    apy: opp.apy,
+                    created_at: new Date().toISOString()
+                });
+            }
+
+            if (filtered.length > 0) {
+                // Ask xAI Brain to analyze and select best opportunity
+                const decision = await this.brain.analyzeStrategy(
+                    { opportunities: filtered.slice(0, 10), currentBalance: this.currentBalance },
+                    { address: this.wallet.publicKey.toBase58(), balance: this.currentBalance }
+                );
+
+                console.log(`🧠 Brain's DeFi Recommendation: ${decision.advice}`);
+                console.log(`💡 Selected Protocol: ${decision.pathway}`);
+
+                // Update current APY based on selected opportunity
+                const topOpp = filtered[0];
+                this.currentAPY = topOpp.apy;
+
+                // TODO: Execute deployment to selected protocol
+                // For now, just log the decision
+                if (decision.action === 'DEPLOY') {
+                    console.log(`⚡ Brain says DEPLOY to: ${decision.pathway}`);
+                    // await this.deployToDeFi(topOpp);
+                } else {
+                    console.log(`🛡️ Brain says HOLD. Monitoring for better opportunity...`);
+                }
+            } else {
+                console.log("⚠️ No suitable yield opportunities found meeting criteria.");
+            }
+
+        } catch (error: any) {
+            console.error("❌ DeFi scan error:", error.message);
         }
     }
 

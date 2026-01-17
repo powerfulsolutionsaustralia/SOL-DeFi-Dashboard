@@ -1,5 +1,5 @@
 import fetch from 'cross-fetch';
-import { YieldOpportunity } from './MarinadeScanner.js';
+import type { YieldOpportunity } from './MarinadeScanner.js';
 
 export class KaminoScanner {
     private readonly API_URL = 'https://api.kamino.finance/strategies';

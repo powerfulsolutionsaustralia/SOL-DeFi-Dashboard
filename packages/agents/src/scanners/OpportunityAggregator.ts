@@ -1,6 +1,6 @@
 import { MarinadeScanner } from './MarinadeScanner.js';
 import { KaminoScanner } from './KaminoScanner.js';
-import { YieldOpportunity } from './MarinadeScanner.js';
+import type { YieldOpportunity } from './MarinadeScanner.js';
 
 export class OpportunityAggregator {
     private marinadeScanner: MarinadeScanner;
