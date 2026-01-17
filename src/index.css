@@ -1,23 +1,31 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;300;400;500;600;700;800;900&family=JetBrains+Mono:wght@100;400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-  /* Quantum Elite Palette */
-  --bg-primary: #050507;
-  --bg-secondary: #0A0A0C;
-  --bg-card: #0F0F12;
+  /* Material Dark - Surface Tones */
+  --md-sys-color-background: #0F1115;
+  --md-sys-color-surface-1: #16191D;
+  --md-sys-color-surface-2: #1C2026;
+  --md-sys-color-surface-3: #232830;
+  --md-sys-color-surface-4: #2A303A;
 
-  --brand-solana: #14F195;
-  --brand-purple: #9945FF;
-  --brand-blue: #007AFF;
+  /* Primary & Accents */
+  --md-sys-color-primary: #6366F1;
+  /* Indigo 500 */
+  --md-sys-color-primary-container: #312E81;
+  --md-sys-color-on-primary: #FFFFFF;
 
-  --ui-border: rgba(255, 255, 255, 0.06);
-  --ui-border-active: rgba(255, 255, 255, 0.12);
+  --md-sys-color-success: #10B981;
+  --md-sys-color-warning: #F59E0B;
+  --md-sys-color-error: #EF4444;
 
-  --text-primary: #FFFFFF;
-  --text-secondary: #A0A0A5;
-  --text-muted: #505055;
+  /* Text Levels */
+  --md-sys-color-on-background: #FFFFFF;
+  --md-sys-color-on-surface: #E2E8F0;
+  --md-sys-color-on-surface-variant: #94A3B8;
 
-  --transition-smooth: cubic-bezier(0.23, 1, 0.32, 1);
+  /* Borders */
+  --md-sys-color-outline: #2E333D;
+  --md-sys-color-outline-variant: #3F4451;
 }
 
 * {
@@ -27,119 +35,171 @@
 }
 
 body {
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-  font-family: 'Inter', -apple-system, sans-serif;
+  background-color: var(--md-sys-color-background);
+  color: var(--md-sys-color-on-background);
+  font-family: 'Inter', sans-serif;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+}
+
+/* 8px Grid Utilities */
+.saas-layout {
+  display: flex;
   min-height: 100vh;
 }
 
-/* Luxury Grid & Spacing */
-.quantum-container {
-  max-width: 1600px;
-  margin: 0 auto;
-  padding: 60px 40px;
+.saas-sidebar {
+  width: 260px;
+  background-color: var(--md-sys-color-surface-1);
+  border-right: 1px solid var(--md-sys-color-outline);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  height: 100vh;
+  z-index: 50;
 }
 
-.quantum-grid {
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: 24px;
+.saas-main {
+  flex: 1;
+  margin-left: 260px;
+  display: flex;
+  flex-direction: column;
 }
 
-/* Institutional Cards */
-.quantum-card {
-  background-color: var(--bg-card);
-  border: 1px solid var(--ui-border);
-  border-radius: 12px;
-  padding: 32px;
-  transition: all 0.4s var(--transition-smooth);
-  position: relative;
-  overflow: hidden;
-}
-
-.quantum-card:hover {
-  border-color: var(--ui-border-active);
-  background-color: #121216;
-}
-
-/* Elite Typography */
-.quantum-h1 {
-  font-size: 5rem;
-  font-weight: 800;
-  letter-spacing: -0.04em;
-  line-height: 1;
-  margin-bottom: 8px;
-}
-
-.quantum-label {
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  color: var(--text-muted);
-  margin-bottom: 12px;
-  display: block;
-}
-
-/* Pathway Visuals */
-.pathway-node {
+.saas-header {
+  height: 64px;
+  background-color: var(--md-sys-color-background);
+  border-bottom: 1px solid var(--md-sys-color-outline);
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 12px 20px;
-  background: rgba(255, 255, 255, 0.03);
+  justify-content: space-between;
+  padding: 0 32px;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.saas-content {
+  padding: 32px;
+  max-width: 1600px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Card Component */
+.saas-card {
+  background-color: var(--md-sys-color-surface-1);
+  border: 1px solid var(--md-sys-color-outline);
   border-radius: 8px;
-  border: 1px solid var(--ui-border);
+  /* Classic SaaS Radius */
+  padding: 24px;
+  transition: box-shadow 0.2s;
 }
 
-.heartbeat {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: var(--brand-solana);
-  box-shadow: 0 0 10px var(--brand-solana);
-  animation: heartbeat 2s ease-in-out infinite;
+.saas-card:hover {
+  border-color: var(--md-sys-color-outline-variant);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
-@keyframes heartbeat {
-  0% {
-    transform: scale(1);
-    opacity: 1;
-  }
-
-  50% {
-    transform: scale(1.5);
-    opacity: 0.5;
-  }
-
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
+/* Typography */
+h1 {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--md-sys-color-on-background);
 }
 
-/* Custom Utilities */
-.text-solana {
-  color: var(--brand-solana);
+h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--md-sys-color-on-background);
 }
 
-.text-purple {
-  color: var(--brand-purple);
+h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--md-sys-color-on-surface);
 }
 
-.text-blue {
-  color: var(--brand-blue);
+h4 {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--md-sys-color-on-surface-variant);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-.opacity-30 {
-  opacity: 0.3;
+.label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.value {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--md-sys-color-on-background);
+  letter-spacing: -0.02em;
+}
+
+/* Status Chips */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.chip-success {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--md-sys-color-success);
+}
+
+.chip-warning {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--md-sys-color-warning);
+}
+
+.chip-neutral {
+  background: var(--md-sys-color-surface-4);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+/* Table */
+.saas-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.saas-table th {
+  text-align: left;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--md-sys-color-outline);
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.saas-table td {
+  padding: 16px;
+  border-bottom: 1px solid var(--md-sys-color-outline);
+  color: var(--md-sys-color-on-surface);
+  font-size: 14px;
+}
+
+.saas-table tr:last-child td {
+  border-bottom: none;
+}
+
+.saas-table tr:hover td {
+  background-color: var(--md-sys-color-surface-2);
 }
 
 /* Scrollbar */
 ::-webkit-scrollbar {
-  width: 4px;
+  width: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -147,24 +207,6 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--ui-border-active);
-  border-radius: 4px;
-}
-
-/* Narrative Pipeline */
-.pipeline-track {
-  display: flex;
-  gap: 24px;
-  align-items: stretch;
-}
-
-.pipeline-item {
-  flex: 1;
-  padding: 24px;
-  border-left: 2px solid var(--ui-border);
-  transition: all 0.3s;
-}
-
-.pipeline-item:hover {
-  border-left-color: var(--brand-solana);
+  background: var(--md-sys-color-outline);
+  border-radius: 3px;
 }
