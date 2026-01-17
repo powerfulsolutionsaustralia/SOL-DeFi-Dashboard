@@ -1,0 +1,33 @@
+{
+  "name": "agents",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@solana/spl-token": "^0.4.14",
+    "@solana/web3.js": "^1.98.4",
+    "@supabase/supabase-js": "^2.90.1",
+    "@types/luxon": "^3.7.1",
+    "@types/node": "^25.0.9",
+    "bs58": "^6.0.0",
+    "cross-fetch": "^4.1.0",
+    "dotenv": "^17.2.3",
+    "lucide-react": "^0.562.0",
+    "luxon": "^3.7.2",
+    "openai": "^6.16.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3",
+    "viem": "^2.44.4"
+  },
+  "devDependencies": {
+    "tsx": "^4.21.0"
+  }
+}
