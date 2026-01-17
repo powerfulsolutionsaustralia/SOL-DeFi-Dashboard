@@ -139,7 +139,7 @@ export default function App() {
             <div className="dashboard-hero">
                 <div className="hero-content">
                     <h1 className="hero-title">Autonomous DeFi Agent</h1>
-                    <p className="hero-subtitle">AI-powered Solana yield optimization running 24/7</p>
+                    <p className="hero-subtitle">xAI-powered agent finding and executing Solana DeFi opportunities 24/7 on Railway</p>
                 </div>
                 <div className="status-badge">
                     <div className="status-pulse" />
@@ -159,7 +159,7 @@ export default function App() {
 
             {/* Balance Sheet */}
             <div className="balance-sheet">
-                <h2>Balance Sheet</h2>
+                <h2>💰 Your Money (Live Balance & Projections)</h2>
                 <div className="balance-grid">
                     <div className="balance-item">
                         <span className="balance-label">Current Holdings</span>
@@ -172,7 +172,7 @@ export default function App() {
                         <span className="balance-growth">+{goal ? ((Math.pow(1 + (goal.target_apy / 100 / 365), 7) - 1) * 100).toFixed(2) : '--'}%</span>
                     </div>
                     <div className="balance-item">
-                        <span className="balance-label">30-Day Projection</span>
+                        <span className="balance-label">30-Day Projection (with compound interest)</span>
                         <span className="balance-value">{goal ? ((balance * Math.pow(1 + (goal.target_apy / 100 / 365), 30))).toFixed(4) : '--'} SOL</span>
                         <span className="balance-growth">+{goal ? ((Math.pow(1 + (goal.target_apy / 100 / 365), 30) - 1) * 100).toFixed(2) : '--'}%</span>
                     </div>
@@ -185,7 +185,7 @@ export default function App() {
                 <div className="card">
                     <div className="card-header">
                         <Target size={20} />
-                        <h3>Financial Goal</h3>
+                        <h3>🎯 Goal: Grow Your SOL</h3>
                     </div>
                     <div className="goal-content">
                         <div className="goal-target">
@@ -212,19 +212,19 @@ export default function App() {
                 <div className="card">
                     <div className="card-header">
                         <Activity size={20} />
-                        <h3>Agent Status</h3>
+                        <h3>🤖 What The Agent Is Doing Right Now</h3>
                     </div>
                     <div className="agent-status">
                         <div className="status-item">
-                            <span className="status-label">Current Action</span>
+                            <span className="status-label">Currently Executing</span>
                             <span className="status-text">Scanning Jupiter pools</span>
                         </div>
                         <div className="status-item">
-                            <span className="status-label">Latest Decision</span>
+                            <span className="status-label">Latest AI Advice (from xAI)</span>
                             <span className="status-text">{latestDecision?.advice || 'Analyzing market...'}</span>
                         </div>
                         <div className="status-item">
-                            <span className="status-label">Strategy</span>
+                            <span className="status-label">Recommended Action</span>
                             <span className="status-badge">{latestDecision?.action || 'MONITOR'}</span>
                         </div>
                     </div>
@@ -234,13 +234,13 @@ export default function App() {
                 <div className="card timeline-card">
                     <div className="card-header">
                         <Clock size={20} />
-                        <h3>Compound Timeline</h3>
+                        <h3>⏱️ How Long Until You Reach Your Goal</h3>
                     </div>
                     <div className="timeline-content">
                         <div className="timeline-stat">
-                            <span className="timeline-label">At Current APY ({goal?.target_apy || 8.4}%)</span>
+                            <span className="timeline-label">If the agent maintains {goal?.target_apy || 8.4}% APY and compounds daily</span>
                             <div className="timeline-value">{goal?.days_to_goal || '--'} days</div>
-                            <span className="timeline-subtext">to reach {goal?.target_sol || 1.0} SOL</span>
+                            <span className="timeline-subtext">until you have {goal?.target_sol || 1.0} SOL (your target)</span>
                         </div>
                         <div className="timeline-formula">
                             <div>Daily Compound Rate</div>
@@ -253,7 +253,7 @@ export default function App() {
                 <div className="card communication-feed">
                     <div className="card-header">
                         <Activity size={20} />
-                        <h3>Agent Communications</h3>
+                        <h3>📡 Live Feed: What The Agent Is Thinking & Doing</h3>
                     </div>
                     <div className="feed-list">
                         {activityFeed.map((item) => (
@@ -291,7 +291,7 @@ export default function App() {
                 <div className="card opportunities-card">
                     <div className="card-header">
                         <Zap size={20} />
-                        <h3>Live Opportunities</h3>
+                        <h3>⚡ Opportunities The Agent Is Scanning On Solana</h3>
                     </div>
                     <div className="opportunities-list">
                         {opportunities.map((opp) => (
