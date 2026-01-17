@@ -8,9 +8,12 @@ import {
     Zap,
     Shield,
     TrendingUp,
-    ArrowRight,
     RefreshCw,
-    Wallet
+    Wallet,
+    Clock,
+    Terminal,
+    ChevronRight,
+    Database
 } from 'lucide-react'
 import './index.css'
 
@@ -40,15 +43,17 @@ export default function App() {
     const [actions, setActions] = useState<AgentAction[]>([])
     const [loading, setLoading] = useState(true)
     const [isScanning, setIsScanning] = useState(false)
+    const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString())
 
     useEffect(() => {
         fetchInitialData()
+        const timer = setInterval(() => setCurrentTime(new Date().toLocaleTimeString()), 1000)
 
         // Real-time Subscriptions
         const yieldSub = supabase
             .channel('yield_reports')
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'yield_reports' }, payload => {
-                setReports(prev => [payload.new as YieldReport, ...prev].slice(0, 15))
+                setReports(prev => [payload.new as YieldReport, ...prev].slice(0, 20))
                 triggerScanEffect()
             })
             .subscribe()
@@ -56,13 +61,14 @@ export default function App() {
         const actionSub = supabase
             .channel('agent_actions')
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'agent_actions' }, payload => {
-                setActions(prev => [payload.new as AgentAction, ...prev].slice(0, 15))
+                setActions(prev => [payload.new as AgentAction, ...prev].slice(0, 20))
             })
             .subscribe()
 
         return () => {
             yieldSub.unsubscribe()
             actionSub.unsubscribe()
+            clearInterval(timer)
         }
     }, [])
 
@@ -71,13 +77,13 @@ export default function App() {
             .from('yield_reports')
             .select('*')
             .order('created_at', { ascending: false })
-            .limit(15)
+            .limit(20)
 
         const { data: actionData } = await supabase
             .from('agent_actions')
             .select('*')
             .order('created_at', { ascending: false })
-            .limit(15)
+            .limit(20)
 
         if (yieldData) setReports(yieldData)
         if (actionData) setActions(actionData)
@@ -90,169 +96,206 @@ export default function App() {
     }
 
     const currentBalance = actions.find(a => a.action_type === 'BALANCE_CHECK')?.details.balance || 0
-    const latestDecision = actions.find(a => a.action_type === 'STRATEGY_DECISION')?.details || { advice: "Analyzing market liquidity...", pathway: "Stable", action: "WAIT" }
+    const latestDecision = actions.find(a => a.action_type === 'STRATEGY_DECISION')?.details || { advice: "Analyzing market liquidity...", pathway: "Deep Neural", action: "MONITOR" }
 
     return (
-        <div className="min-h-screen p-6 md:p-12 relative">
-            <div className="aura-container">
-                <div className="aura-blob aura-1" />
-                <div className="aura-blob aura-2" />
-            </div>
+        <div className="min-h-screen p-4 md:p-8 selection:bg-blue-500/30">
+            <div className="app-bg" />
 
-            {/* Header */}
-            <header className="max-w-7xl mx-auto mb-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                <div>
-                    <div className="flex items-center gap-3 mb-2">
-                        <div className="p-2.5 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl shadow-lg ring-1 ring-white/20">
-                            <Cpu size={28} className="text-white" />
-                        </div>
-                        <h1 className="text-3xl md:text-4xl tracking-tighter gradient-text">
-                            SOLANA <span className="font-light">INTELLIGENCE</span>
-                        </h1>
+            {/* System Bar */}
+            <div className="max-w-[1400px] mx-auto mb-8 flex justify-between items-center px-2">
+                <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-2">
+                        <div className="status-dot pulse-green" />
+                        <span className="sub-title">System Live</span>
                     </div>
-                    <div className="flex items-center gap-4 text-xs font-bold uppercase tracking-widest text-slate-500">
-                        <span className="flex items-center gap-2">
-                            <span className="status-indicator status-online animate-pulse" />
-                            Network: Mainnet-Beta
-                        </span>
-                        <span className="flex items-center gap-2">
-                            <span className={`status-indicator ${isScanning ? 'status-scanning animate-spin' : 'status-online'}`} />
-                            xAI Core: Online
-                        </span>
+                    <div className="hidden md:flex items-center gap-2">
+                        <Database size={10} className="text-muted" />
+                        <span className="sub-title">Jupiter Index: Current</span>
                     </div>
                 </div>
+                <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2 font-mono text-[10px] text-muted">
+                        <Clock size={10} />
+                        {currentTime}
+                    </div>
+                </div>
+            </div>
 
-                <div className="flex gap-4 w-full md:w-auto">
-                    <div className="glass-panel p-4 flex-1 md:flex-none min-w-[180px]">
-                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Asset Value</p>
-                        <div className="text-2xl font-black flex items-baseline gap-1">
-                            {loading ? '...' : currentBalance.toFixed(3)} <span className="text-xs text-blue-400">SOL</span>
+            {/* Main Header */}
+            <header className="max-w-[1400px] mx-auto mb-12">
+                <div className="flex flex-col md:flex-row justify-between items-end gap-8">
+                    <div className="fade-in">
+                        <h1 className="display-title">SOLANA_CORE</h1>
+                        <div className="flex items-center gap-3 mt-2">
+                            <span className="px-2 py-0.5 border border-solana/20 rounded text-[9px] font-black tracking-widest text-solana uppercase">
+                                v2.1.0-OBSIDIAN
+                            </span>
+                            <span className="sub-title tracking-widest">xAI Intelligence Core</span>
+                        </div>
+                    </div>
+
+                    <div className="w-full md:w-auto flex gap-4">
+                        <div className="obsidian-card p-6 min-w-[200px] flex flex-col justify-between">
+                            <span className="sub-title mb-4">Total Liquidity</span>
+                            <div className="text-3xl font-mono font-bold tracking-tighter self-end">
+                                {loading ? '---' : currentBalance.toFixed(4)}
+                                <span className="text-xs text-secondary ml-2">SOL</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </header>
 
-            <main className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <main className="dashboard-grid fade-in" style={{ animationDelay: '0.2s' }}>
 
-                {/* Hero: Intelligence Strategy */}
-                <section className="lg:col-span-12 glass-panel p-8 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
-                        <TrendingUp size={160} />
+                {/* Node: Strategic Brain */}
+                <section className="lg:col-span-8 md:col-span-12 obsidian-card bg-gradient-to-br from-blue-500/5 to-purple-500/5 p-8 group">
+                    <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-all duration-700">
+                        <Cpu size={120} strokeWidth={1} />
                     </div>
 
-                    <div className="flex flex-col lg:flex-row gap-10 items-center">
-                        <div className="flex-1">
-                            <h2 className="text-sm font-black text-blue-400 uppercase tracking-[0.3em] mb-4 flex items-center gap-2">
-                                <Zap size={14} fill="currentColor" /> Active Strategy
-                            </h2>
-                            <div className="space-y-4">
-                                <p className="text-2xl md:text-3xl font-bold leading-tight text-slate-100 italic">
-                                    "{latestDecision.advice}"
-                                </p>
-                                <div className="flex flex-wrap gap-3">
-                                    <span className="px-3 py-1 bg-blue-500/10 border border-blue-500/20 rounded-full text-[10px] font-black text-blue-400 uppercase tracking-widest">
-                                        Pathway: {latestDecision.pathway}
-                                    </span>
-                                    <span className="px-3 py-1 bg-purple-500/10 border border-purple-500/20 rounded-full text-[10px] font-black text-purple-400 uppercase tracking-widest">
-                                        Action: {latestDecision.action}
-                                    </span>
-                                </div>
+                    <div className="relative z-10">
+                        <div className="flex items-center gap-2 mb-6">
+                            <div className="p-1.5 bg-blue-500/10 rounded-md">
+                                <Zap size={16} className="text-blue-500" />
                             </div>
+                            <span className="sub-title text-blue-500">Intelligence Strategy</span>
                         </div>
 
-                        <div className="grid grid-cols-3 gap-4 w-full lg:w-96">
-                            {[
-                                { label: 'Scans', icon: RefreshCw, value: reports.length, color: 'blue' },
-                                { label: 'Actions', icon: Activity, value: actions.length, color: 'purple' },
-                                { label: 'Health', icon: Shield, value: '100%', color: 'green' }
-                            ].map((stat, i) => (
-                                <div key={i} className="bg-white/5 p-4 rounded-2xl border border-white/5 text-center">
-                                    <stat.icon size={20} className={`mx-auto mb-2 text-${stat.color}-400 opacity-60`} />
-                                    <div className="text-lg font-black">{stat.value}</div>
-                                    <div className="text-[9px] font-bold text-slate-500 uppercase">{stat.label}</div>
+                        <div className="space-y-6">
+                            <p className="text-3xl font-bold leading-tight max-w-2xl text-slate-100">
+                                "{latestDecision.advice}"
+                            </p>
+
+                            <div className="flex gap-4">
+                                <div className="obsidian-glass rounded-lg px-4 py-2 flex items-center gap-3">
+                                    <span className="text-[10px] uppercase font-bold text-muted">Core Action</span>
+                                    <span className="text-xs font-mono font-bold text-blue-400">{latestDecision.action}</span>
                                 </div>
-                            ))}
+                                <div className="obsidian-glass rounded-lg px-4 py-2 flex items-center gap-3">
+                                    <span className="text-[10px] uppercase font-bold text-muted">Decision Path</span>
+                                    <span className="text-xs font-mono font-bold text-purple-400">{latestDecision.pathway}</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </section>
 
-                {/* Left: Intelligence Feed (Agent Logs) */}
-                <section className="lg:col-span-7 flex flex-col gap-6">
-                    <div className="glass-panel flex-1 flex flex-col">
-                        <div className="p-6 border-b border-white/5 flex justify-between items-center">
-                            <h3 className="text-xs font-black uppercase tracking-widest flex items-center gap-2">
-                                <Layers size={14} className="text-purple-400" /> Intelligence Feed
-                            </h3>
-                            <div className="flex items-center gap-1.5 px-2 py-0.5 bg-purple-500/10 border border-purple-500/20 rounded-full">
-                                <span className="w-1.5 h-1.5 bg-purple-500 rounded-full animate-pulse" />
-                                <span className="text-[9px] font-black text-purple-400 uppercase">Live Trace</span>
-                            </div>
-                        </div>
-                        <div className="p-2 h-[450px] overflow-y-auto custom-scrollbar font-mono text-xs">
-                            {actions.map((action) => (
-                                <div key={action.id} className="group p-4 rounded-xl hover:bg-white/5 transition-colors border-l-2 border-transparent hover:border-purple-500/30 mb-1">
-                                    <div className="flex justify-between mb-1.5 opacity-50 font-bold text-[10px]">
-                                        <span>[{action.action_type}]</span>
-                                        <span>{new Date(action.created_at).toLocaleTimeString()}</span>
+                {/* Node: Execution Stats */}
+                <section className="lg:col-span-4 md:col-span-12 obsidian-card p-6 flex flex-col justify-between">
+                    <div>
+                        <span className="sub-title mb-8 block">Execution Metrics</span>
+                        <div className="space-y-4">
+                            {[
+                                { label: 'Intelligence Scans', val: reports.length, icon: RefreshCw },
+                                { label: 'Autonomous Actions', val: actions.length, icon: Activity },
+                                { label: 'Security Health', val: 'Optimum', icon: Shield }
+                            ].map((s, i) => (
+                                <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-white/[0.02] border border-white/[0.02]">
+                                    <div className="flex items-center gap-3">
+                                        <s.icon size={14} className="text-muted" />
+                                        <span className="text-xs font-medium text-secondary">{s.label}</span>
                                     </div>
-                                    <div className="text-slate-300 leading-relaxed font-medium">
-                                        {action.action_type === 'BALANCE_CHECK' ? (
-                                            <div className="flex items-center gap-2">
-                                                <Wallet size={12} className="text-blue-400" />
-                                                Liquidity verification: <span className="text-white font-black">{action.details.balance} SOL</span>
+                                    <span className="font-mono text-sm font-bold">{s.val}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="mt-8">
+                        <div className="h-1 bg-white/5 rounded-full overflow-hidden">
+                            <div className="h-full bg-blue-500 w-[65%]" />
+                        </div>
+                        <div className="flex justify-between mt-2 text-[10px] font-bold text-muted uppercase">
+                            <span>Resource Usage</span>
+                            <span>65% CPU</span>
+                        </div>
+                    </div>
+                </section>
+
+                {/* Node: Intelligence Feed */}
+                <section className="lg:col-span-7 md:col-span-12 obsidian-card">
+                    <div className="p-6 border-b border-obsidian-border flex justify-between items-center">
+                        <div className="flex items-center gap-2">
+                            <Terminal size={14} className="text-purple-500" />
+                            <span className="sub-title">Logic_Trace.log</span>
+                        </div>
+                        <span className="text-[10px] text-muted font-mono">{actions.length} Entries</span>
+                    </div>
+                    <div className="feed-frame custom-scrollbar">
+                        {actions.map((a, i) => (
+                            <div key={a.id} className="feed-item fade-in" style={{ animationDelay: `${i * 0.05}s` }}>
+                                <span className="timestamp">T-{new Date(a.created_at).toLocaleTimeString()}</span>
+                                <div className="flex items-start gap-3">
+                                    <ChevronRight size={10} className="mt-1 text-muted" />
+                                    <div className="space-y-2 flex-1">
+                                        <div className="text-[11px] font-black uppercase text-secondary tracking-widest">
+                                            {a.action_type}
+                                        </div>
+                                        {a.action_type === 'BALANCE_CHECK' ? (
+                                            <div className="text-xs text-blue-400 font-mono">
+                                                LIQUIDITY_VERIFIED: {a.details.balance} SOL
                                             </div>
-                                        ) : action.action_type === 'STRATEGY_DECISION' ? (
-                                            <div className="bg-black/20 p-3 rounded-lg border border-white/5 text-blue-100 italic">
-                                                {action.details.advice}
+                                        ) : a.action_type === 'STRATEGY_DECISION' ? (
+                                            <div className="text-xs italic text-slate-300 bg-white/[0.03] p-3 rounded border border-white/5">
+                                                {a.details.advice}
                                             </div>
                                         ) : (
-                                            <span className="opacity-60">{JSON.stringify(action.details).slice(0, 100)}</span>
+                                            <pre className="text-[10px] text-muted overflow-hidden text-ellipsis">
+                                                {JSON.stringify(a.details)}
+                                            </pre>
                                         )}
                                     </div>
                                 </div>
-                            ))}
-                        </div>
+                            </div>
+                        ))}
                     </div>
                 </section>
 
-                {/* Right: Market Scanner (Opportunities) */}
-                <section className="lg:col-span-5 flex flex-col gap-6">
-                    <div className="glass-panel flex-1 flex flex-col">
-                        <div className="p-6 border-b border-white/5 flex justify-between items-center">
-                            <h3 className="text-xs font-black uppercase tracking-widest flex items-center gap-2">
-                                <Globe size={14} className="text-blue-400" /> Market Scanner
-                            </h3>
-                            <RefreshCw size={12} className={`text-slate-500 ${isScanning ? 'animate-spin' : ''}`} />
+                {/* Node: Market Scanner */}
+                <section className="lg:col-span-5 md:col-span-12 obsidian-card">
+                    <div className="p-6 border-b border-obsidian-border flex justify-between items-center bg-white/[0.01]">
+                        <div className="flex items-center gap-2">
+                            <Globe size={14} className="text-blue-500" />
+                            <span className="sub-title">Jupiter_Scanner</span>
                         </div>
-                        <div className="flex-1 overflow-y-auto custom-scrollbar">
-                            {reports.map((report) => (
-                                <div key={report.id} className="p-5 flex justify-between items-center border-b border-white/5 hover:bg-white/5 transition-all">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/10">
-                                            <TrendingUp size={16} className="text-blue-400" />
-                                        </div>
-                                        <div>
-                                            <div className="text-sm font-bold text-white">{report.token}</div>
-                                            <div className="text-[10px] text-slate-500 font-black uppercase">{report.protocol}</div>
-                                        </div>
+                        {isScanning && <div className="status-dot pulse-green" />}
+                    </div>
+                    <div className="h-[400px] overflow-y-auto custom-scrollbar">
+                        {reports.map((r) => (
+                            <div key={r.id} className="data-row hover:bg-white/[0.02] transition-colors group">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-8 h-8 rounded border border-white/5 flex items-center justify-center bg-white/[0.02]">
+                                        <TrendingUp size={12} className="text-blue-500 opacity-50 समूह-होवर:opacity-100" />
                                     </div>
-                                    <div className="text-right">
-                                        <div className="text-lg font-black text-blue-400">{report.apy}%</div>
-                                        <div className="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">Current APY</div>
+                                    <div>
+                                        <div className="text-xs font-bold">{r.token}</div>
+                                        <div className="text-[9px] text-muted uppercase tracking-tighter font-bold">{r.protocol}</div>
                                     </div>
                                 </div>
-                            ))}
-                        </div>
+                                <div className="text-right">
+                                    <div className="text-sm font-mono font-bold text-solana">{r.apy}%</div>
+                                    <div className="text-[8px] text-muted uppercase font-bold tracking-[0.1em]">Yield APY</div>
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </section>
 
             </main>
 
-            <footer className="max-w-7xl mx-auto mt-12 pt-8 border-t border-white/5 flex justify-between text-[10px] font-bold text-slate-600 uppercase tracking-[0.2em]">
-                <div>&copy; 2026 AI DEFI HEDGE FUND</div>
-                <div className="flex items-center gap-4">
-                    <span className="hover:text-blue-400 cursor-pointer transition-colors">Documentation</span>
-                    <span className="hover:text-purple-400 cursor-pointer transition-colors">Audit Report</span>
+            {/* Footer Status */}
+            <footer className="max-w-[1400px] mx-auto mt-12 py-8 border-t border-obsidian-border flex flex-col md:flex-row justify-between items-center gap-4">
+                <div className="text-[9px] font-bold text-muted uppercase tracking-[0.4em]">
+                    &copy; 2026 OBSIDIAN INTELLIGENCE LTD // SOLANA DEFI
+                </div>
+                <div className="flex gap-8">
+                    {['Network_Status', 'Auth_Protocol', 'Database_Uptime'].map((l) => (
+                        <div key={l} className="flex items-center gap-2 cursor-pointer hover:text-white transition-colors">
+                            <div className="w-1 h-1 bg-solana rounded-full" />
+                            <span className="text-[9px] font-black text-muted uppercase tracking-widest">{l}</span>
+                        </div>
+                    ))}
                 </div>
             </footer>
         </div>
