@@ -4,16 +4,16 @@ import {
     Activity,
     Cpu,
     Globe,
-    Layers,
     Zap,
     Shield,
     TrendingUp,
     RefreshCw,
     Wallet,
-    Clock,
-    Terminal,
+    Server,
+    Brain,
+    ZapOff,
     ChevronRight,
-    Database
+    Maximize2
 } from 'lucide-react'
 import './index.css'
 
@@ -43,17 +43,17 @@ export default function App() {
     const [actions, setActions] = useState<AgentAction[]>([])
     const [loading, setLoading] = useState(true)
     const [isScanning, setIsScanning] = useState(false)
-    const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString())
+    const [systemTime, setSystemTime] = useState(new Date().toISOString())
 
     useEffect(() => {
         fetchInitialData()
-        const timer = setInterval(() => setCurrentTime(new Date().toLocaleTimeString()), 1000)
+        const timer = setInterval(() => setSystemTime(new Date().toISOString()), 1000)
 
         // Real-time Subscriptions
         const yieldSub = supabase
             .channel('yield_reports')
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'yield_reports' }, payload => {
-                setReports(prev => [payload.new as YieldReport, ...prev].slice(0, 20))
+                setReports(prev => [payload.new as YieldReport, ...prev].slice(0, 25))
                 triggerScanEffect()
             })
             .subscribe()
@@ -61,7 +61,7 @@ export default function App() {
         const actionSub = supabase
             .channel('agent_actions')
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'agent_actions' }, payload => {
-                setActions(prev => [payload.new as AgentAction, ...prev].slice(0, 20))
+                setActions(prev => [payload.new as AgentAction, ...prev].slice(0, 25))
             })
             .subscribe()
 
@@ -77,13 +77,13 @@ export default function App() {
             .from('yield_reports')
             .select('*')
             .order('created_at', { ascending: false })
-            .limit(20)
+            .limit(25)
 
         const { data: actionData } = await supabase
             .from('agent_actions')
             .select('*')
             .order('created_at', { ascending: false })
-            .limit(20)
+            .limit(25)
 
         if (yieldData) setReports(yieldData)
         if (actionData) setActions(actionData)
@@ -96,206 +96,198 @@ export default function App() {
     }
 
     const currentBalance = actions.find(a => a.action_type === 'BALANCE_CHECK')?.details.balance || 0
-    const latestDecision = actions.find(a => a.action_type === 'STRATEGY_DECISION')?.details || { advice: "Analyzing market liquidity...", pathway: "Deep Neural", action: "MONITOR" }
+    const latestDecision = actions.find(a => a.action_type === 'STRATEGY_DECISION')?.details || { advice: "Analyzing market sentiment...", pathway: "Neural-Static", action: "MONITOR" }
 
     return (
-        <div className="min-h-screen p-4 md:p-8 selection:bg-blue-500/30">
+        <div className="min-h-screen relative font-sans">
             <div className="app-bg" />
+            <div className="scan-overlay" />
 
-            {/* System Bar */}
-            <div className="max-w-[1400px] mx-auto mb-8 flex justify-between items-center px-2">
-                <div className="flex items-center gap-6">
-                    <div className="flex items-center gap-2">
-                        <div className="status-dot pulse-green" />
-                        <span className="sub-title">System Live</span>
-                    </div>
-                    <div className="hidden md:flex items-center gap-2">
-                        <Database size={10} className="text-muted" />
-                        <span className="sub-title">Jupiter Index: Current</span>
-                    </div>
-                </div>
-                <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-2 font-mono text-[10px] text-muted">
-                        <Clock size={10} />
-                        {currentTime}
-                    </div>
-                </div>
-            </div>
-
-            {/* Main Header */}
-            <header className="max-w-[1400px] mx-auto mb-12">
-                <div className="flex flex-col md:flex-row justify-between items-end gap-8">
-                    <div className="fade-in">
-                        <h1 className="display-title">SOLANA_CORE</h1>
-                        <div className="flex items-center gap-3 mt-2">
-                            <span className="px-2 py-0.5 border border-solana/20 rounded text-[9px] font-black tracking-widest text-solana uppercase">
-                                v2.1.0-OBSIDIAN
-                            </span>
-                            <span className="sub-title tracking-widest">xAI Intelligence Core</span>
+            {/* Top Navigation / Branding */}
+            <nav className="p-8 pb-4 flex justify-between items-start max-w-[1600px] mx-auto">
+                <div>
+                    <div className="flex items-center gap-4 mb-1">
+                        <div className="w-8 h-8 rounded-sm bg-accent-blue/20 border border-accent-blue/30 flex items-center justify-center">
+                            <TrendingUp size={16} className="text-accent-blue" strokeWidth={3} />
                         </div>
+                        <h2 className="exec-header text-2xl tracking-tighter">SOLANA_HQ</h2>
+                    </div>
+                    <div className="flex gap-4">
+                        <span className="status-tag tag-active"><div className="w-1.5 h-1.5 bg-accent-solana rounded-full animate-pulse" /> Mainnet Live</span>
+                        <span className="status-tag">V2.4_OBSIDIAN</span>
+                    </div>
+                </div>
+
+                <div className="text-right flex flex-col items-end gap-2">
+                    <div className="status-tag font-mono text-[9px] px-3 py-1">SYS_TIME: {systemTime}</div>
+                    <div className="flex gap-2">
+                        <span className="status-tag hover:border-accent-blue transition-colors cursor-pointer group">
+                            <Maximize2 size={10} className="group-hover:text-accent-blue" />
+                        </span>
+                    </div>
+                </div>
+            </nav>
+
+            <main className="max-w-[1600px] mx-auto p-4 md:p-8 pt-0">
+                <div className="exec-grid">
+
+                    {/* Header Matrix Cell */}
+                    <div className="grid-cell lg:col-span-8 md:col-span-12 flex flex-col justify-end min-h-[300px]">
+                        <span className="exec-label mb-4">Strategic Intelligence Core</span>
+                        <h1 className="exec-header">AUTONOMOUS_CAPITAL</h1>
+                        <p className="mt-6 text-xl font-light text-text-secondary leading-snug max-w-2xl">
+                            Continuous market monitoring and execution via integrated xAI Intelligence. Operating at 400ms latency on Solana Mainnet.
+                        </p>
                     </div>
 
-                    <div className="w-full md:w-auto flex gap-4">
-                        <div className="obsidian-card p-6 min-w-[200px] flex flex-col justify-between">
-                            <span className="sub-title mb-4">Total Liquidity</span>
-                            <div className="text-3xl font-mono font-bold tracking-tighter self-end">
+                    {/* Capital Management Cell */}
+                    <div className="grid-cell lg:col-span-4 md:col-span-12 border-l border-obsidian-border flex flex-col justify-between">
+                        <div>
+                            <span className="exec-label mb-8">Asset Valuation (SOL)</span>
+                            <div className="matrix-value">
                                 {loading ? '---' : currentBalance.toFixed(4)}
-                                <span className="text-xs text-secondary ml-2">SOL</span>
+                                <span className="text-sm text-text-muted ml-3 tracking-widest font-sans font-black">SOL_BETA</span>
+                            </div>
+                        </div>
+                        <div className="pt-8 space-y-3">
+                            <div className="flex justify-between items-center text-[10px] font-bold text-text-muted">
+                                <span>ROI_PROJECTION</span>
+                                <span className="text-accent-solana">+8.4% APY_AVG</span>
+                            </div>
+                            <div className="h-[2px] bg-white/5 w-full relative">
+                                <div className="absolute top-0 left-0 h-full bg-accent-solana w-2/3 shadow-[0_0_10px_var(--accent-solana)]" />
                             </div>
                         </div>
                     </div>
-                </div>
-            </header>
 
-            <main className="dashboard-grid fade-in" style={{ animationDelay: '0.2s' }}>
-
-                {/* Node: Strategic Brain */}
-                <section className="lg:col-span-8 md:col-span-12 obsidian-card bg-gradient-to-br from-blue-500/5 to-purple-500/5 p-8 group">
-                    <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-all duration-700">
-                        <Cpu size={120} strokeWidth={1} />
-                    </div>
-
-                    <div className="relative z-10">
-                        <div className="flex items-center gap-2 mb-6">
-                            <div className="p-1.5 bg-blue-500/10 rounded-md">
-                                <Zap size={16} className="text-blue-500" />
-                            </div>
-                            <span className="sub-title text-blue-500">Intelligence Strategy</span>
-                        </div>
-
-                        <div className="space-y-6">
-                            <p className="text-3xl font-bold leading-tight max-w-2xl text-slate-100">
-                                "{latestDecision.advice}"
-                            </p>
-
-                            <div className="flex gap-4">
-                                <div className="obsidian-glass rounded-lg px-4 py-2 flex items-center gap-3">
-                                    <span className="text-[10px] uppercase font-bold text-muted">Core Action</span>
-                                    <span className="text-xs font-mono font-bold text-blue-400">{latestDecision.action}</span>
-                                </div>
-                                <div className="obsidian-glass rounded-lg px-4 py-2 flex items-center gap-3">
-                                    <span className="text-[10px] uppercase font-bold text-muted">Decision Path</span>
-                                    <span className="text-xs font-mono font-bold text-purple-400">{latestDecision.pathway}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                {/* Node: Execution Stats */}
-                <section className="lg:col-span-4 md:col-span-12 obsidian-card p-6 flex flex-col justify-between">
-                    <div>
-                        <span className="sub-title mb-8 block">Execution Metrics</span>
-                        <div className="space-y-4">
+                    {/* Infrastructure Health Matrix */}
+                    <div className="grid-cell lg:col-span-12 border-y border-obsidian-border">
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
                             {[
-                                { label: 'Intelligence Scans', val: reports.length, icon: RefreshCw },
-                                { label: 'Autonomous Actions', val: actions.length, icon: Activity },
-                                { label: 'Security Health', val: 'Optimum', icon: Shield }
+                                { title: 'Operational Status', st: 'Stable', icon: Server, col: 'accent-solana' },
+                                { title: 'xAI Intelligence', st: 'Deep Analysing', icon: Brain, col: 'accent-purple' },
+                                { title: 'Railway Instance', st: 'Continuous', icon: Activity, col: 'accent-blue' },
+                                { title: 'Execution Layer', st: 'Mainnet-B', icon: Zap, col: 'accent-solana' }
                             ].map((s, i) => (
-                                <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-white/[0.02] border border-white/[0.02]">
-                                    <div className="flex items-center gap-3">
-                                        <s.icon size={14} className="text-muted" />
-                                        <span className="text-xs font-medium text-secondary">{s.label}</span>
+                                <div key={i} className="flex items-center gap-6">
+                                    <div className={`p-3 bg-${s.col}/5 border border-${s.col}/10 rounded-full`}>
+                                        <s.icon size={20} className={`text-${s.col}`} strokeWidth={1.5} />
                                     </div>
-                                    <span className="font-mono text-sm font-bold">{s.val}</span>
+                                    <div>
+                                        <div className="exec-label">{s.title}</div>
+                                        <div className="text-sm font-bold mt-1 text-text-primary tracking-tight">{s.st}</div>
+                                    </div>
                                 </div>
                             ))}
                         </div>
                     </div>
-                    <div className="mt-8">
-                        <div className="h-1 bg-white/5 rounded-full overflow-hidden">
-                            <div className="h-full bg-blue-500 w-[65%]" />
-                        </div>
-                        <div className="flex justify-between mt-2 text-[10px] font-bold text-muted uppercase">
-                            <span>Resource Usage</span>
-                            <span>65% CPU</span>
-                        </div>
-                    </div>
-                </section>
 
-                {/* Node: Intelligence Feed */}
-                <section className="lg:col-span-7 md:col-span-12 obsidian-card">
-                    <div className="p-6 border-b border-obsidian-border flex justify-between items-center">
-                        <div className="flex items-center gap-2">
-                            <Terminal size={14} className="text-purple-500" />
-                            <span className="sub-title">Logic_Trace.log</span>
+                    {/* Strategic Brain Cell */}
+                    <div className="grid-cell lg:col-span-7 md:col-span-12 border-r border-obsidian-border relative group">
+                        <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-all duration-1000">
+                            <Brain size={140} strokeWidth={0.5} />
                         </div>
-                        <span className="text-[10px] text-muted font-mono">{actions.length} Entries</span>
+                        <span className="exec-label mb-8">Active Strategic Decision</span>
+                        <div className="space-y-6">
+                            <h3 className="text-3xl font-black italic leading-tight text-white/90">
+                                "{latestDecision.advice}"
+                            </h3>
+                            <div className="flex gap-4">
+                                <span className="status-tag py-2 px-4 border-accent-blue/30 text-accent-blue">Action: {latestDecision.action}</span>
+                                <span className="status-tag py-2 px-4 border-accent-purple/30 text-accent-purple">Logic: {latestDecision.pathway}</span>
+                            </div>
+                        </div>
                     </div>
-                    <div className="feed-frame custom-scrollbar">
-                        {actions.map((a, i) => (
-                            <div key={a.id} className="feed-item fade-in" style={{ animationDelay: `${i * 0.05}s` }}>
-                                <span className="timestamp">T-{new Date(a.created_at).toLocaleTimeString()}</span>
-                                <div className="flex items-start gap-3">
-                                    <ChevronRight size={10} className="mt-1 text-muted" />
-                                    <div className="space-y-2 flex-1">
-                                        <div className="text-[11px] font-black uppercase text-secondary tracking-widest">
-                                            {a.action_type}
-                                        </div>
+
+                    {/* Metrics Dashboard Cell */}
+                    <div className="grid-cell lg:col-span-5 md:col-span-12">
+                        <span className="exec-label mb-8 underline decoration-white/10 underline-offset-8">Intelligence Metrics</span>
+                        <div className="space-y-4">
+                            {[
+                                { label: 'Audit Points Scanned', val: reports.length },
+                                { label: 'Autonomous Rotations', val: actions.length },
+                                { label: 'Network Uptime', val: '99.9%' },
+                                { label: 'Average Execution Speed', val: '0.4s' }
+                            ].map((m, i) => (
+                                <div key={i} className="matrix-row">
+                                    <span className="matrix-label">{m.label}</span>
+                                    <span className="matrix-val">{m.val}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Logic Trace (Terminal) Cell */}
+                    <div className="grid-cell lg:col-span-8 md:col-span-12 border-t border-obsidian-border">
+                        <div className="flex justify-between items-center mb-8">
+                            <span className="exec-label">System_Logic_Trace</span>
+                            <div className="flex items-center gap-2">
+                                <div className="w-1.5 h-1.5 bg-accent-purple rounded-full animate-pulse" />
+                                <span className="text-[10px] font-bold text-text-muted">LIVE_KERNEL_TRACE</span>
+                            </div>
+                        </div>
+                        <div className="trace-container custom-scrollbar pr-4">
+                            {actions.map((a, i) => (
+                                <div key={a.id} className="trace-line">
+                                    <span className="trace-meta">TIMECASE_{new Date(a.created_at).toLocaleTimeString()} // ID_{a.id.slice(0, 8)}</span>
+                                    <div className="trace-body">
+                                        <span className="text-accent-blue font-bold mr-2">[{a.action_type}]</span>
                                         {a.action_type === 'BALANCE_CHECK' ? (
-                                            <div className="text-xs text-blue-400 font-mono">
-                                                LIQUIDITY_VERIFIED: {a.details.balance} SOL
-                                            </div>
+                                            `Core balance verified at ${a.details.balance} SOL. Asset remains liquid and deployable.`
                                         ) : a.action_type === 'STRATEGY_DECISION' ? (
-                                            <div className="text-xs italic text-slate-300 bg-white/[0.03] p-3 rounded border border-white/5">
+                                            `Strategic judgment finalized Target objective identified via xAI analysis.`
+                                        ) : (
+                                            JSON.stringify(a.details)
+                                        )}
+                                        {a.action_type === 'STRATEGY_DECISION' && (
+                                            <div className="mt-4 p-4 bg-white/[0.03] border-l-2 border-accent-purple text-text-primary italic text-xs leading-relaxed">
                                                 {a.details.advice}
                                             </div>
-                                        ) : (
-                                            <pre className="text-[10px] text-muted overflow-hidden text-ellipsis">
-                                                {JSON.stringify(a.details)}
-                                            </pre>
                                         )}
                                     </div>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
-                </section>
-
-                {/* Node: Market Scanner */}
-                <section className="lg:col-span-5 md:col-span-12 obsidian-card">
-                    <div className="p-6 border-b border-obsidian-border flex justify-between items-center bg-white/[0.01]">
-                        <div className="flex items-center gap-2">
-                            <Globe size={14} className="text-blue-500" />
-                            <span className="sub-title">Jupiter_Scanner</span>
+                            ))}
                         </div>
-                        {isScanning && <div className="status-dot pulse-green" />}
                     </div>
-                    <div className="h-[400px] overflow-y-auto custom-scrollbar">
-                        {reports.map((r) => (
-                            <div key={r.id} className="data-row hover:bg-white/[0.02] transition-colors group">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-8 h-8 rounded border border-white/5 flex items-center justify-center bg-white/[0.02]">
-                                        <TrendingUp size={12} className="text-blue-500 opacity-50 समूह-होवर:opacity-100" />
-                                    </div>
-                                    <div>
-                                        <div className="text-xs font-bold">{r.token}</div>
-                                        <div className="text-[9px] text-muted uppercase tracking-tighter font-bold">{r.protocol}</div>
-                                    </div>
-                                </div>
-                                <div className="text-right">
-                                    <div className="text-sm font-mono font-bold text-solana">{r.apy}%</div>
-                                    <div className="text-[8px] text-muted uppercase font-bold tracking-[0.1em]">Yield APY</div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </section>
 
+                    {/* Market Scanner Cell */}
+                    <div className="grid-cell lg:col-span-4 md:col-span-12 border-t border-l border-obsidian-border">
+                        <div className="flex justify-between items-center mb-8">
+                            <span className="exec-label">Market_Flux_Scanner</span>
+                            {isScanning && <RefreshCw size={12} className="animate-spin text-accent-solana" />}
+                        </div>
+                        <div className="h-[450px] overflow-y-auto custom-scrollbar">
+                            {reports.map((r) => (
+                                <div key={r.id} className="flow-row group">
+                                    <div>
+                                        <div className="text-xs font-bold tracking-tight text-white group-hover:text-accent-solana transition-colors">{r.token}</div>
+                                        <div className="text-[9px] text-text-muted font-bold">{r.protocol}</div>
+                                    </div>
+                                    <div className="text-center">
+                                        <div className="text-xs font-mono font-bold text-accent-blue">{r.apy}%</div>
+                                        <div className="text-[8px] text-text-muted font-bold">APY</div>
+                                    </div>
+                                    <div className="text-right">
+                                        <ChevronRight size={12} className="text-text-muted ml-auto cursor-pointer hover:text-white" />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                </div>
             </main>
 
-            {/* Footer Status */}
-            <footer className="max-w-[1400px] mx-auto mt-12 py-8 border-t border-obsidian-border flex flex-col md:flex-row justify-between items-center gap-4">
-                <div className="text-[9px] font-bold text-muted uppercase tracking-[0.4em]">
-                    &copy; 2026 OBSIDIAN INTELLIGENCE LTD // SOLANA DEFI
-                </div>
-                <div className="flex gap-8">
-                    {['Network_Status', 'Auth_Protocol', 'Database_Uptime'].map((l) => (
-                        <div key={l} className="flex items-center gap-2 cursor-pointer hover:text-white transition-colors">
-                            <div className="w-1 h-1 bg-solana rounded-full" />
-                            <span className="text-[9px] font-black text-muted uppercase tracking-widest">{l}</span>
-                        </div>
-                    ))}
+            <footer className="max-w-[1600px] mx-auto p-8 pt-0 border-t border-obsidian-border/50">
+                <div className="flex flex-col md:flex-row justify-between items-center gap-6 mt-8">
+                    <div className="text-[10px] font-black text-text-muted tracking-[0.5em] uppercase">
+                        OBSIDIAN_INTELLIGENCE // SOLANA_AUTONOMY_v2
+                    </div>
+                    <div className="flex gap-12">
+                        <span className="exec-label cursor-pointer hover:text-white transition-colors">Documentation_Node</span>
+                        <span className="exec-label cursor-pointer hover:text-white transition-colors">Core_Audit_Log</span>
+                        <span className="exec-label cursor-pointer hover:text-white transition-colors">Liquidity_Pools</span>
+                    </div>
                 </div>
             </footer>
         </div>

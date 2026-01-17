@@ -1,21 +1,23 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100;300;400;700;900&family=JetBrains+Mono:wght@100;400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100;300;400;700;900&family=Inter:wght@100;400;700;900&family=JetBrains+Mono:wght@100;400;700&display=swap');
 
 :root {
   --obsidian-black: #000000;
-  --obsidian-card: #0a0a0a;
+  --obsidian-card: rgba(10, 10, 10, 0.8);
   --obsidian-border: rgba(255, 255, 255, 0.05);
   --obsidian-border-bright: rgba(255, 255, 255, 0.12);
 
   --accent-solana: #14f195;
+  --accent-solana-dim: rgba(20, 241, 149, 0.15);
   --accent-blue: #007aff;
   --accent-purple: #bf40bf;
+  --accent-purple-dim: rgba(191, 64, 191, 0.15);
   --accent-red: #ff3b30;
 
   --text-primary: #ffffff;
-  --text-secondary: #888888;
-  --text-muted: #444444;
+  --text-secondary: #8a8a8e;
+  --text-muted: #48484a;
 
-  --glass-blur: blur(25px);
+  --glass-blur: blur(40px);
 }
 
 * {
@@ -27,216 +29,215 @@
 body {
   background-color: var(--obsidian-black);
   color: var(--text-primary);
-  font-family: 'Outfit', -apple-system, sans-serif;
+  font-family: 'Inter', -apple-system, sans-serif;
   letter-spacing: -0.01em;
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
   overflow-x: hidden;
 }
 
-/* Base Terminal Font */
-.font-mono {
-  font-family: 'JetBrains Mono', monospace;
+/* Base Display Font */
+.font-display {
+  font-family: 'Outfit', sans-serif;
 }
 
-/* Background Aura: Subtle Midnight Gradient */
+/* Background Atmosphere */
 .app-bg {
   position: fixed;
   inset: 0;
   z-index: -1;
   background:
-    radial-gradient(circle at 0% 0%, rgba(0, 122, 255, 0.03) 0%, transparent 50%),
-    radial-gradient(circle at 100% 100%, rgba(191, 64, 191, 0.03) 0%, transparent 50%);
+    radial-gradient(circle at 10% 10%, rgba(0, 122, 255, 0.04) 0%, transparent 40%),
+    radial-gradient(circle at 90% 90%, rgba(191, 64, 191, 0.04) 0%, transparent 40%),
+    linear-gradient(to bottom, #000, #050505);
 }
 
-/* Obsidian Card System */
-.obsidian-card {
+/* Executive Card System */
+.exec-card {
   background: var(--obsidian-card);
+  backdrop-filter: var(--glass-blur);
   border: 1px solid var(--obsidian-border);
-  border-radius: 12px;
+  border-radius: 1px;
+  /* Sharp, professional edges */
   position: relative;
   overflow: hidden;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s ease;
 }
 
-.obsidian-card:hover {
+.exec-card:hover {
   border-color: var(--obsidian-border-bright);
 }
 
-.obsidian-glass {
-  background: rgba(10, 10, 10, 0.7);
-  backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--obsidian-border);
-}
-
-/* High Contrast Header */
-.display-title {
-  font-weight: 900;
-  font-size: 3rem;
-  letter-spacing: -0.05em;
-  background: linear-gradient(to bottom, #fff 40%, #555 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.sub-title {
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.3em;
-  color: var(--text-secondary);
-}
-
-/* Status Indicators: Nano Pulse */
-.status-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  display: inline-block;
-}
-
-.pulse-green {
-  background: var(--accent-solana);
-  box-shadow: 0 0 10px var(--accent-solana);
-  animation: nano-pulse 2s infinite;
-}
-
-@keyframes nano-pulse {
-  0% {
-    transform: scale(1);
-    opacity: 1;
-  }
-
-  50% {
-    transform: scale(1.5);
-    opacity: 0.5;
-  }
-
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-/* Data Grid Visualization */
-.data-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 16px;
-  border-bottom: 0.5px solid var(--obsidian-border);
-  font-size: 0.85rem;
-}
-
-.data-row:last-child {
-  border-bottom: none;
-}
-
-.data-label {
-  color: var(--text-secondary);
-  font-weight: 400;
-}
-
-.data-value {
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 4px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--obsidian-border-bright);
-  border-radius: 2px;
-}
-
-/* Intelligence Feed Frame */
-.feed-frame {
-  height: 400px;
-  overflow-y: auto;
-  border-left: 1px solid var(--obsidian-border);
-  padding-left: 16px;
-}
-
-.feed-item {
-  margin-bottom: 20px;
-  position: relative;
-}
-
-.feed-item::before {
+.exec-card::after {
   content: '';
-  position: absolute;
-  left: -20px;
-  top: 8px;
-  width: 7px;
-  height: 1px;
-  background: var(--obsidian-border-bright);
-}
-
-.timestamp {
-  font-size: 0.65rem;
-  font-family: 'JetBrains Mono';
-  color: var(--text-muted);
-  margin-bottom: 4px;
-  display: block;
-}
-
-/* Glow Animation for Scanning */
-.scan-line {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, var(--accent-blue), transparent);
-  animation: scanning 3s linear infinite;
-  opacity: 0.3;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--obsidian-border-bright), transparent);
 }
 
-@keyframes scanning {
+/* Pro Titles */
+.exec-header {
+  font-family: 'Outfit';
+  font-weight: 900;
+  font-size: 3.5rem;
+  letter-spacing: -0.06em;
+  background: linear-gradient(to bottom, #fff 30%, #444 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 0.9;
+}
+
+.exec-label {
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.4em;
+  color: var(--text-secondary);
+  display: block;
+}
+
+/* Status Nano-Grid */
+.status-tag {
+  font-family: 'JetBrains Mono';
+  font-size: 0.55rem;
+  font-weight: 700;
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--obsidian-border);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tag-active {
+  color: var(--accent-solana);
+  border-color: var(--accent-solana-dim);
+}
+
+/* Liquidity Matrix */
+.matrix-value {
+  font-family: 'JetBrains Mono';
+  font-weight: 700;
+  font-size: 2.5rem;
+  letter-spacing: -0.05em;
+  color: var(--text-primary);
+}
+
+/* Intelligence Matrix Grid */
+.matrix-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--obsidian-border);
+}
+
+.matrix-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+.matrix-val {
+  font-family: 'JetBrains Mono';
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+/* Logic Trace (Terminal) */
+.trace-container {
+  height: 450px;
+  overflow-y: auto;
+  font-family: 'JetBrains Mono';
+}
+
+.trace-line {
+  font-size: 0.7rem;
+  margin-bottom: 24px;
+  position: relative;
+  padding-left: 20px;
+}
+
+.trace-line::before {
+  content: '>';
+  position: absolute;
+  left: 0;
+  color: var(--text-muted);
+}
+
+.trace-meta {
+  color: var(--text-muted);
+  font-size: 0.6rem;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.trace-body {
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+/* Market Flow Scanner */
+.flow-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid var(--obsidian-border);
+  transition: background 0.2s ease;
+}
+
+.flow-row:hover {
+  background: rgba(255, 255, 255, 0.01);
+}
+
+/* Animations */
+@keyframes scanning-glow {
   0% {
-    top: 0;
+    transform: translateY(-100%);
   }
 
   100% {
-    top: 100%;
+    transform: translateY(100vh);
   }
 }
 
-/* Utility Animations */
-.fade-in {
-  animation: fadeIn 0.8s ease-out forwards;
+.scan-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 200px;
+  background: linear-gradient(to bottom, transparent, rgba(0, 122, 255, 0.015), transparent);
+  pointer-events: none;
+  z-index: 100;
+  animation: scanning-glow 8s linear infinite;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* Custom Scrollbar Alpha */
+::-webkit-scrollbar {
+  width: 1px;
 }
 
-/* Grid Layout for Pro Dashboard */
-.dashboard-grid {
+::-webkit-scrollbar-thumb {
+  background: var(--text-muted);
+}
+
+/* Dashboard Structure */
+.exec-grid {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
-  gap: 16px;
-  max-width: 1400px;
-  margin: 0 auto;
+  gap: 1px;
+  /* Creating a grid-line effect */
+  background: var(--obsidian-border);
+  border: 1px solid var(--obsidian-border);
 }
 
-@media (max-width: 1024px) {
-  .dashboard-grid {
-    grid-template-columns: 1fr;
-  }
+.grid-cell {
+  background: var(--obsidian-black);
+  padding: 32px;
 }
