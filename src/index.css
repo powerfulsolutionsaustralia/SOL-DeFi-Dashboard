@@ -20,7 +20,13 @@ body {
 .dashboard-container {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 40px 24px;
+  padding: 16px;
+}
+
+@media (min-width: 768px) {
+  .dashboard-container {
+    padding: 40px 24px;
+  }
 }
 
 /* Hero Section */
@@ -113,8 +119,15 @@ body {
 /* Grid */
 .dashboard-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 24px;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+  }
 }
 
 /* Cards */
