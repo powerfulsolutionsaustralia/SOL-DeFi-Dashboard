@@ -41,6 +41,7 @@ interface AgentAction {
 export default function App() {
     const [reports, setReports] = useState<YieldReport[]>([])
     const [actions, setActions] = useState<AgentAction[]>([])
+    const [balance, setBalance] = useState<number>(0)
     const [loading, setLoading] = useState(true)
     const [isScanning, setIsScanning] = useState(false)
     const [systemTime, setSystemTime] = useState(new Date().toISOString())
@@ -61,7 +62,11 @@ export default function App() {
         const actionSub = supabase
             .channel('agent_actions')
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'agent_actions' }, payload => {
-                setActions(prev => [payload.new as AgentAction, ...prev].slice(0, 25))
+                const newAction = payload.new as AgentAction
+                setActions(prev => [newAction, ...prev].slice(0, 25))
+                if (newAction.action_type === 'BALANCE_CHECK') {
+                    setBalance(newAction.details.balance)
+                }
             })
             .subscribe()
 
@@ -85,8 +90,16 @@ export default function App() {
             .order('created_at', { ascending: false })
             .limit(25)
 
+        const { data: balanceData } = await supabase
+            .from('agent_actions')
+            .select('details')
+            .eq('action_type', 'BALANCE_CHECK')
+            .order('created_at', { ascending: false })
+            .limit(1)
+
         if (yieldData) setReports(yieldData)
         if (actionData) setActions(actionData)
+        if (balanceData && balanceData[0]) setBalance(balanceData[0].details.balance)
         setLoading(false)
     }
 
@@ -95,7 +108,6 @@ export default function App() {
         setTimeout(() => setIsScanning(false), 2000)
     }
 
-    const currentBalance = actions.find(a => a.action_type === 'BALANCE_CHECK')?.details.balance || 0
     const latestDecision = actions.find(a => a.action_type === 'STRATEGY_DECISION')?.details || { advice: "Analyzing market sentiment...", pathway: "Neural-Static", action: "MONITOR" }
 
     return (
@@ -145,7 +157,7 @@ export default function App() {
                         <div>
                             <span className="exec-label mb-8">Asset Valuation (SOL)</span>
                             <div className="matrix-value">
-                                {loading ? '---' : currentBalance.toFixed(4)}
+                                {loading ? '---' : balance.toFixed(4)}
                                 <span className="text-sm text-text-muted ml-3 tracking-widest font-sans font-black">SOL_BETA</span>
                             </div>
                         </div>
