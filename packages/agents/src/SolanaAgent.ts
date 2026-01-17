@@ -15,6 +15,7 @@ export class SolanaAgent {
     private wallet: Keypair;
     private supabase: SupabaseClient;
     private brain: BrainAgent;
+    private currentBalance: number = 0;
 
     constructor() {
         this.brain = new BrainAgent();
@@ -70,6 +71,7 @@ export class SolanaAgent {
         try {
             const balance = await this.connection.getBalance(this.wallet.publicKey);
             const solBalance = balance / LAMPORTS_PER_SOL;
+            this.currentBalance = solBalance;
             console.log(`💰 Current Balance: ${solBalance.toFixed(4)} SOL`);
 
             await this.supabase.from('agent_actions').insert({
