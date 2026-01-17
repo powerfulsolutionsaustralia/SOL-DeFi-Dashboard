@@ -47,6 +47,12 @@ export default function App() {
     const [opportunities, setOpportunities] = useState<YieldReport[]>([])
     const [activityFeed, setActivityFeed] = useState<ActivityItem[]>([])
     const [loading, setLoading] = useState(true)
+    const [systemStatus, setSystemStatus] = useState({
+        railway: false,
+        xai: false,
+        solana: false,
+        lastUpdate: new Date()
+    })
 
     useEffect(() => {
         fetchData()
@@ -126,7 +132,23 @@ export default function App() {
             .order('created_at', { ascending: false })
             .limit(10)
 
-        if (activityData) setActivityFeed(activityData)
+        if (activityData) {
+            setActivityFeed(activityData)
+
+            // Detect system status from recent activity (last 5 minutes)
+            const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000)
+            const recentActivity = activityData.filter((a: any) => new Date(a.created_at) > fiveMinutesAgo)
+
+            const hasBalanceCheck = recentActivity.some((a: any) => a.action_type === 'BALANCE_CHECK')
+            const hasXAIDecision = recentActivity.some((a: any) => a.action_type === 'STRATEGY_DECISION')
+
+            setSystemStatus({
+                railway: hasBalanceCheck || hasXAIDecision, // Agent is running if we see any activity
+                xai: hasXAIDecision, // xAI is working if we see strategy decisions
+                solana: hasBalanceCheck, // Solana RPC is working if we can check balance
+                lastUpdate: new Date()
+            })
+        }
 
         setLoading(false)
     }
@@ -141,9 +163,28 @@ export default function App() {
                     <h1 className="hero-title">Autonomous DeFi Agent</h1>
                     <p className="hero-subtitle">xAI-powered agent finding and executing Solana DeFi opportunities 24/7 on Railway</p>
                 </div>
-                <div className="status-badge">
-                    <div className="status-pulse" />
-                    <span>Agent Active</span>
+                <div className="system-status">
+                    <div className={`status-indicator ${systemStatus.railway ? 'active' : 'inactive'}`}>
+                        <div className="status-dot" />
+                        <div className="status-info">
+                            <span className="status-name">Railway Agent</span>
+                            <span className="status-state">{systemStatus.railway ? 'Running' : 'Offline'}</span>
+                        </div>
+                    </div>
+                    <div className={`status-indicator ${systemStatus.xai ? 'active' : 'inactive'}`}>
+                        <div className="status-dot" />
+                        <div className="status-info">
+                            <span className="status-name">xAI API</span>
+                            <span className="status-state">{systemStatus.xai ? 'Connected' : 'No Activity'}</span>
+                        </div>
+                    </div>
+                    <div className={`status-indicator ${systemStatus.solana ? 'active' : 'inactive'}`}>
+                        <div className="status-dot" />
+                        <div className="status-info">
+                            <span className="status-name">Solana RPC</span>
+                            <span className="status-state">{systemStatus.solana ? 'Connected' : 'Offline'}</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
