@@ -1,0 +1,12 @@
+{
+    "name": "defi-monorepo",
+    "private": true,
+    "workspaces": [
+        "packages/*"
+    ],
+    "scripts": {
+        "dashboard:build": "npm run build -w packages/dashboard",
+        "dashboard:dev": "npm run dev -w packages/dashboard",
+        "agents:start": "npm start -w packages/agents"
+    }
+}
