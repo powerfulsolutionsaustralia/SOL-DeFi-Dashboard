@@ -328,22 +328,53 @@ export default function App() {
                     </div>
                 </div>
 
-                {/* Live Opportunities */}
-                <div className="card opportunities-card">
+                {/* Live Opportunities with xAI Analysis */}
+                <div className="card opportunities-card" style={{ gridColumn: '1 / -1' }}>
                     <div className="card-header">
                         <Zap size={20} />
-                        <h3>⚡ Opportunities The Agent Is Scanning On Solana</h3>
+                        <h3>⚡ DeFi Opportunities: What xAI Recommends & Why</h3>
                     </div>
-                    <div className="opportunities-list">
-                        {opportunities.map((opp) => (
-                            <div key={opp.id} className="opportunity-item">
-                                <div className="opp-info">
-                                    <div className="opp-protocol">{opp.protocol}</div>
-                                    <div className="opp-token">{opp.token}</div>
+                    <div className="opportunities-table">
+                        <div className="table-header">
+                            <div>Protocol</div>
+                            <div>Token Pair</div>
+                            <div>APY</div>
+                            <div>Risk Level</div>
+                            <div>xAI Recommendation</div>
+                        </div>
+                        {opportunities.map((opp, index) => (
+                            <div key={opp.id} className="table-row">
+                                <div className="cell-protocol">
+                                    <div className="protocol-badge">{opp.protocol}</div>
                                 </div>
-                                <div className="opp-apy">
-                                    {opp.apy.toFixed(2)}%
-                                    <span className="apy-label">APY</span>
+                                <div className="cell-token">{opp.token}</div>
+                                <div className="cell-apy">
+                                    <span className="apy-value">{opp.apy.toFixed(2)}%</span>
+                                </div>
+                                <div className="cell-risk">
+                                    <span className={`risk-badge ${index === 0 ? 'low' : index === 1 ? 'medium' : 'high'}`}>
+                                        {index === 0 ? 'Low' : index === 1 ? 'Medium' : 'High'}
+                                    </span>
+                                </div>
+                                <div className="cell-recommendation">
+                                    {index === 0 && latestDecision?.action === 'SWAP' && (
+                                        <div className="recommendation-box selected">
+                                            <strong>✅ SELECTED</strong>
+                                            <p>{latestDecision?.pathway || 'Best risk/reward ratio'}</p>
+                                        </div>
+                                    )}
+                                    {index === 0 && latestDecision?.action !== 'SWAP' && (
+                                        <div className="recommendation-box considering">
+                                            <strong>🤔 CONSIDERING</strong>
+                                            <p>Monitoring for optimal entry point</p>
+                                        </div>
+                                    )}
+                                    {index > 0 && (
+                                        <div className="recommendation-box monitoring">
+                                            <strong>👁️ MONITORING</strong>
+                                            <p>{index === 1 ? 'Backup option if primary fails' : 'Lower priority due to risk'}</p>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         ))}
