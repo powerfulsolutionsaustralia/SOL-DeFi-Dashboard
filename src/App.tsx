@@ -15,7 +15,11 @@ import {
     ChevronRight,
     Gauge,
     ArrowUpRight,
-    Database
+    Database,
+    Terminal,
+    Search,
+    Lock,
+    Binary
 } from 'lucide-react'
 import './index.css'
 
@@ -52,7 +56,6 @@ export default function App() {
         fetchInitialData()
         const timer = setInterval(() => setSystemTime(new Date().toLocaleTimeString()), 1000)
 
-        // Real-time Subscriptions
         const yieldSub = supabase
             .channel('yield_reports')
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'yield_reports' }, payload => {
@@ -110,184 +113,212 @@ export default function App() {
         setTimeout(() => setIsScanning(false), 2000)
     }
 
-    const latestDecision = actions.find(a => a.action_type === 'STRATEGY_DECISION')?.details || { advice: "Synchronizing brain kernels...", pathway: "Stable-Beta", action: "MONITOR" }
+    const latestDecision = actions.find(a => a.action_type === 'STRATEGY_DECISION')?.details || { advice: "Analyzing neural pathways...", pathway: "Stable-Beta", action: "MONITOR" }
 
     return (
-        <div className="relative min-h-screen">
-            {/* Immersive Aurora Background */}
-            <div className="aurora-bg">
-                <div className="aurora-blob blob-1" />
-                <div className="aurora-blob blob-2" />
-                <div className="aurora-blob blob-3" />
+        <div className="relative min-h-screen selection:bg-nebula-purple selection:text-white">
+            <div className="nebula-bg">
+                <div className="nebula-blob blob-purple" />
+                <div className="nebula-blob blob-blue" />
+                <div className="nebula-blob blob-solana" />
             </div>
 
-            {/* Premium Header Nav */}
-            <nav className="p-8 pb-0 flex justify-between items-center max-w-[1700px] mx-auto">
-                <div className="flex items-center gap-6">
-                    <div className="p-3 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 shadow-xl">
-                        <TrendingUp size={24} className="text-aurora-green" />
+            {/* Premium Command Nav */}
+            <nav className="p-10 pb-0 flex justify-between items-center max-w-[1800px] mx-auto">
+                <div className="flex items-center gap-8">
+                    <div className="p-4 bg-white/5 backdrop-blur-3xl rounded-[32px] border border-white/10 shadow-2xl">
+                        <Binary size={32} className="text-nebula-solana" />
                     </div>
                     <div>
-                        <h1 className="hero-display text-3xl mb-1">AURORA_INTEL</h1>
-                        <div className="flex gap-3">
-                            <div className="flex items-center gap-2 px-3 py-1 bg-aurora-green/10 text-aurora-green text-[10px] font-bold rounded-full border border-aurora-green/20">
-                                <div className="w-1.5 h-1.5 bg-aurora-green rounded-full animate-pulse shadow-[0_0_8px_var(--aurora-green)]" />
-                                SOLANA_MAINNET_LIVE
+                        <h1 className="hero-display text-4xl mb-1 tracking-tighter">AURORA_INTEL_v5</h1>
+                        <div className="flex gap-4">
+                            <div className="flow-pill py-1.5 px-4 text-[11px] font-black border-nebula-solana/20 bg-nebula-solana/5 text-nebula-solana">
+                                <div className="dot-active" /> SOLANA_KERNEL_CONNECTED
+                            </div>
+                            <div className="flow-pill py-1.5 px-4 text-[11px] font-black border-white/10 bg-white/5 text-text-soft">
+                                VER_5.0.0_PRODUCTION
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div className="diamond-card py-3 px-6 rounded-full flex items-center gap-6">
-                    <div className="text-right">
-                        <div className="text-[10px] font-black text-text-dim text-right">OPERATIONAL_TIME</div>
-                        <div className="font-mono text-sm tracking-widest">{systemTime}</div>
-                    </div>
-                    <div className="w-px h-8 bg-white/10" />
-                    <div className="text-right">
-                        <div className="text-[10px] font-black text-text-dim text-right">SYSTEM_INTEGRITY</div>
-                        <div className="text-aurora-green font-bold text-sm tracking-tighter">SECURE (99.9%)</div>
+                <div className="flex gap-6">
+                    <div className="nebula-card py-4 px-8 rounded-full flex items-center gap-10">
+                        <div className="text-right">
+                            <div className="text-[11px] font-black text-text-mute tracking-widest uppercase">Kernel_Time</div>
+                            <div className="font-mono text-lg font-bold tracking-widest text-white">{systemTime}</div>
+                        </div>
+                        <div className="w-px h-10 bg-white/10" />
+                        <div className="text-right">
+                            <div className="text-[11px] font-black text-text-mute tracking-widest uppercase">System_State</div>
+                            <div className="text-nebula-solana font-black text-lg tracking-tighter">SECURE (99.9%)</div>
+                        </div>
                     </div>
                 </div>
             </nav>
 
-            <main className="max-w-[1700px] mx-auto p-8 grid grid-cols-12 gap-8">
+            <main className="nebula-grid">
 
-                {/* HERO: The Vault */}
-                <div className="col-span-12 lg:col-span-8">
-                    <div className="diamond-card h-full flex flex-col justify-between overflow-hidden relative">
-                        {/* Decorative Background Icon */}
-                        <div className="absolute -right-20 -bottom-20 opacity-[0.02] rotate-12 pointer-events-none">
-                            <Wallet size={500} />
+                {/* THE VAULT HERO (Centered Narrative) */}
+                <div className="col-span-12 lg:col-span-12">
+                    <div className="nebula-card p-16 flex flex-col items-center text-center overflow-hidden relative">
+                        {/* Decorative Shield Icon */}
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.03] pointer-events-none scale-[2.5] rotate-12">
+                            <Shield size={600} strokeWidth={0.5} />
                         </div>
 
-                        <div>
-                            <span className="section-label">Institutional Asset Vault</span>
-                            <div className="flex items-end gap-6 mb-8 mt-4">
-                                <h2 className="hero-display">{loading ? '---' : balance.toFixed(4)}</h2>
-                                <div className="mb-4">
-                                    <span className="block text-2xl font-black text-text-dim tracking-tighter">SOL</span>
-                                    <span className="text-sm font-bold text-aurora-green flex items-center gap-1">
-                                        <ArrowUpRight size={14} /> +8.4% APY
-                                    </span>
-                                </div>
+                        <span className="tagline">Institutional Asset Valuation</span>
+                        <div className="relative">
+                            <h2 className="display-large mb-4">
+                                {loading ? '---' : balance.toFixed(4)}
+                            </h2>
+                            <span className="absolute -right-24 bottom-6 text-4xl font-black text-text-mute tracking-tighter">SOL</span>
+                        </div>
+
+                        <div className="mt-8 flex gap-12 items-center">
+                            <div className="flex flex-col items-center">
+                                <span className="text-[10px] font-black text-text-mute tracking-widest uppercase mb-1">Growth_Velocity</span>
+                                <span className="text-xl font-black text-nebula-solana flex items-center gap-2">
+                                    <ArrowUpRight size={20} /> +8.4% APY
+                                </span>
                             </div>
-                            <p className="max-w-xl text-text-dim text-lg leading-relaxed font-light">
-                                Real-time valuation of your sub-custodial wallet deployed on Solana. Currently optimizing yields across Jupiter and Liquidity pools.
-                            </p>
+                            <div className="w-px h-12 bg-white/10" />
+                            <div className="flex flex-col items-center">
+                                <span className="text-[10px] font-black text-text-mute tracking-widest uppercase mb-1">Yield_Accrual</span>
+                                <span className="text-xl font-black text-white">0.012 SOL</span>
+                            </div>
+                            <div className="w-px h-12 bg-white/10" />
+                            <div className="flex flex-col items-center">
+                                <span className="text-[10px] font-black text-text-mute tracking-widest uppercase mb-1">Risk_Integrity</span>
+                                <span className="text-xl font-black text-nebula-blue uppercase tracking-tighter">DELTA_ZERO</span>
+                            </div>
                         </div>
 
-                        <div className="mt-12 pt-8 border-t border-white/5 grid grid-cols-2 md:grid-cols-4 gap-8">
-                            {[
-                                { label: 'Available Liquidity', val: `${balance.toFixed(4)} SOL`, icon: Layers },
-                                { label: 'Yield Accrued', val: '0.012 SOL', icon: Zap },
-                                { label: 'Active Strategies', val: '3', icon: Target },
-                                { label: 'Risk Profile', val: 'Delta-Neutral', icon: Shield }
-                            ].map((m, i) => (
-                                <div key={i}>
-                                    <div className="flex items-center gap-2 text-text-ghost mb-1">
-                                        {m.icon && <m.icon size={12} />}
-                                        <span className="text-[9px] font-black uppercase tracking-widest">{m.label}</span>
-                                    </div>
-                                    <div className="text-sm font-bold tracking-tight">{m.val}</div>
-                                </div>
-                            ))}
-                        </div>
+                        <p className="mt-12 max-w-3xl text-text-soft text-xl leading-relaxed font-light">
+                            Continuous capital optimization on Solana. Your assets are currently deployed across **Jupiter** and **Liquidity V3** pools, managed autonomously by xAI reasoning and Railway execution.
+                        </p>
                     </div>
                 </div>
 
-                {/* The Engine Room (Operational Status) */}
-                <div className="col-span-12 lg:col-span-4 space-y-8">
-                    <div className="diamond-card status-active">
-                        <span className="section-label">Engine_Room</span>
-                        <div className="space-y-6 mt-6">
-                            {[
-                                { name: 'Railway Cluster', status: 'Continuous', icon: Server, color: 'text-aurora-blue' },
-                                { name: 'xAI Reasoning', status: 'Deep_Learning', icon: Brain, color: 'text-aurora-purple' },
-                                { name: 'Solana RPC', status: 'Mainnet-B', icon: Database, color: 'text-aurora-green' },
-                                { name: 'Execution Layer', status: 'Active', icon: Gauge, color: 'text-aurora-green' }
-                            ].map((s, i) => (
-                                <div key={i} className="flex justify-between items-center group cursor-default">
-                                    <div className="flex items-center gap-4">
-                                        <div className={`p-2.5 bg-white/5 rounded-xl border border-white/10 group-hover:border-white/20 transition-all ${s.color}`}>
-                                            <s.icon size={18} strokeWidth={1.5} />
-                                        </div>
+                {/* THE BRAIN (Judgment & Automation) */}
+                <div className="col-span-12 lg:col-span-7">
+                    <div className="nebula-card h-full relative group">
+                        <div className="absolute top-10 right-10 p-4 bg-nebula-purple/10 rounded-2xl border border-nebula-purple/20">
+                            <Brain size={32} className="text-nebula-purple animate-pulse" />
+                        </div>
+                        <span className="tagline">Intelligence Process Pathway</span>
+
+                        <div className="mt-8 space-y-10">
+                            <div className="relative pl-12">
+                                <div className="absolute left-0 top-0 w-8 h-8 rounded-full bg-nebula-purple/20 border border-nebula-purple/40 flex items-center justify-center">
+                                    <Cpu size={16} className="text-nebula-purple" />
+                                </div>
+                                <h3 className="text-3xl font-black italic text-white/90 leading-tight">
+                                    "{latestDecision.advice}"
+                                </h3>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-8">
+                                <div className="p-6 bg-white/[0.03] rounded-3xl border border-white/5 hover:border-nebula-purple/30 transition-all">
+                                    <div className="text-[10px] font-black text-text-mute tracking-widest uppercase mb-3 text-nebula-purple">Judgment_Output</div>
+                                    <div className="text-xl font-black uppercase tracking-tighter">{latestDecision.action}</div>
+                                    <div className="mt-2 text-xs text-text-soft font-bold">PROBABILITY_CONFIDENCE: 94.2%</div>
+                                </div>
+                                <div className="p-6 bg-white/[0.03] rounded-3xl border border-white/5 hover:border-nebula-blue/30 transition-all">
+                                    <div className="text-[10px] font-black text-text-mute tracking-widest uppercase mb-3 text-nebula-blue">Logic_Pathway</div>
+                                    <div className="text-xl font-black uppercase tracking-tighter">{latestDecision.pathway}</div>
+                                    <div className="mt-2 text-xs text-text-soft font-bold">NEURAL_VERIFICATION_PASS</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="mt-12 pt-10 border-t border-white/5">
+                            <span className="text-[10px] font-black text-text-mute tracking-widest uppercase mb-6 block">Operational_Infrastructure (Railway 24/7)</span>
+                            <div className="flex gap-12">
+                                {[
+                                    { name: 'ENGINE_ROOM', icon: Server, status: 'Continuous' },
+                                    { name: 'XAI_BRAIN', icon: Cpu, status: 'Deep_Analysis' },
+                                    { name: 'SOLANA_MAINNET', icon: Database, status: 'Mainnet-B' }
+                                ].map((inf, i) => (
+                                    <div key={i} className="flex items-center gap-4">
+                                        <inf.icon size={20} className="text-text-mute" />
                                         <div>
-                                            <div className="text-xs font-bold text-white">{s.name}</div>
-                                            <div className="text-[10px] text-text-dim font-medium">{s.status}</div>
+                                            <div className="text-xs font-black text-white tracking-widest">{inf.name}</div>
+                                            <div className="text-[10px] font-bold text-nebula-solana">{inf.status}</div>
                                         </div>
                                     </div>
-                                    <div className="status-indicator" />
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    <div className="diamond-card bg-aurora-purple/5 border-aurora-purple/20">
-                        <span className="section-label text-aurora-purple">AI Strategic Alpha</span>
-                        <div className="mt-4">
-                            <div className="text-xl font-black italic tracking-tight text-white/90">
-                                "{latestDecision.advice}"
-                            </div>
-                            <div className="mt-6 flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/5">
-                                <div>
-                                    <div className="text-[9px] font-black text-text-dim">TARGET_OBJECTIVE</div>
-                                    <div className="text-xs font-bold text-aurora-purple uppercase">{latestDecision.action}</div>
-                                </div>
-                                <ArrowUpRight size={18} className="text-aurora-purple" />
+                                ))}
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Live Data Flux & Kernels */}
-                <div className="col-span-12 grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {/* Data Flux Scanner */}
-                    <div className="diamond-card">
-                        <div className="flex justify-between items-center mb-8">
-                            <span className="section-label">Market_Yield_Flux</span>
-                            {isScanning && <div className="text-[10px] font-bold text-aurora-green animate-pulse">SCANNING_JUPITER...</div>}
+                {/* THE AUDIT (Live Intelligence Stream) */}
+                <div className="col-span-12 lg:col-span-5">
+                    <div className="nebula-card h-full">
+                        <div className="flex justify-between items-center mb-10">
+                            <span className="tagline">Alpha_Intelligence_Trace</span>
+                            <div className="dot-active shadow-[0_0_15px_var(--nebula-purple)] bg-nebula-purple border-none" />
                         </div>
-                        <div className="flux-container custom-scrollbar h-[350px]">
-                            {reports.map((r) => (
-                                <div key={r.id} className="flux-row group">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-10 h-10 rounded-full bg-aurora-green/5 border border-aurora-green/10 flex items-center justify-center text-aurora-green font-bold text-[10px]">
+
+                        <div className="h-[400px] overflow-y-auto pr-6 custom-scrollbar font-mono">
+                            {actions.map((a) => (
+                                <div key={a.id} className="audit-row group">
+                                    <div className="flex items-center gap-6">
+                                        <Terminal size={14} className="text-text-mute group-hover:text-nebula-purple" />
+                                        <div>
+                                            <div className="text-[10px] text-text-mute font-black uppercase mb-1 tracking-widest group-hover:text-white transition-colors">
+                                                LOG ENTRY // ID_{a.id.slice(0, 8)}
+                                            </div>
+                                            <div className="text-xs text-text-soft leading-relaxed pr-8">
+                                                {a.action_type === 'BALANCE_CHECK' ? (
+                                                    `[SYSTEM_AUDIT] Balance confirmed: ${a.details.balance} SOL at base station.`
+                                                ) : (
+                                                    `[CORE_JUDGMENT] ${a.details.advice}`
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="text-right text-[10px] font-black text-text-mute group-hover:text-nebula-purple">
+                                        {new Date(a.created_at).toLocaleTimeString()}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                {/* THE FLUX (Market Yield Opportunities) */}
+                <div className="col-span-12">
+                    <div className="nebula-card">
+                        <div className="flex justify-between items-center mb-10">
+                            <div>
+                                <span className="tagline">Solana_Yield_Flux_Scanner</span>
+                                <h4 className="text-2xl font-black tracking-tighter mt-1">REAL-TIME_ECOSYSTEM_AUDIT</h4>
+                            </div>
+                            <div className="flex items-center gap-6">
+                                {isScanning && <div className="text-xs font-black text-nebula-solana animate-pulse tracking-widest uppercase">Scanning_Jupiter_v6...</div>}
+                                <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
+                                    <RefreshCw size={20} className={isScanning ? 'animate-spin text-nebula-solana' : 'text-text-mute'} />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                            {reports.slice(0, 4).map((r) => (
+                                <div key={r.id} className="p-8 bg-white/[0.02] rounded-[32px] border border-white/5 hover:border-nebula-solana/30 transition-all hover:bg-white/[0.04]">
+                                    <div className="flex justify-between items-start mb-6">
+                                        <div className="w-12 h-12 rounded-2xl bg-nebula-solana/5 border border-nebula-solana/20 flex items-center justify-center text-nebula-solana font-black text-xs">
                                             {r.token.split(' ')[0]}
                                         </div>
-                                        <div>
-                                            <div className="text-sm font-bold text-white group-hover:text-aurora-green transition-colors">{r.token}</div>
-                                            <div className="text-[10px] text-text-dim font-bold">{r.protocol} • SOLANA</div>
+                                        <div className="text-right">
+                                            <div className="text-[11px] font-black text-text-mute uppercase tracking-widest mb-1">Yield_APY</div>
+                                            <div className="text-3xl font-black text-nebula-solana tracking-tighter">{r.apy}%</div>
                                         </div>
                                     </div>
-                                    <div className="text-right">
-                                        <div className="text-lg font-black tracking-tighter text-aurora-green">{r.apy}%</div>
-                                        <div className="text-[9px] text-text-dim font-black tracking-widest uppercase">EST_APY</div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* System Logic Trace */}
-                    <div className="diamond-card">
-                        <div className="flex justify-between items-center mb-8">
-                            <span className="section-label">Alpha_Logic_Stream</span>
-                            <div className="status-indicator shadow-[0_0_10px_var(--aurora-purple)]" />
-                        </div>
-                        <div className="flux-container custom-scrollbar h-[350px] font-mono">
-                            {actions.map((a) => (
-                                <div key={a.id} className="mb-6 group">
-                                    <div className="flex justify-between text-[10px] text-text-dim mb-2 font-bold group-hover:text-aurora-purple transition-colors">
-                                        <span>SYS_LOG :: ID_{a.id.slice(0, 8)}</span>
-                                        <span>{new Date(a.created_at).toLocaleTimeString()}</span>
-                                    </div>
-                                    <div className="text-xs text-text-pure/80 leading-relaxed border-l-2 border-white/5 pl-4 py-1 group-hover:border-aurora-purple/50 transition-all">
-                                        {a.action_type === 'BALANCE_CHECK' ? (
-                                            <span className="text-aurora-blue font-bold tracking-tighter">[VALUATION_AUDIT]</span>
-                                        ) : (
-                                            <span className="text-aurora-purple font-bold tracking-tighter">[INTEL_JUDGMENT]</span>
-                                        )} {a.action_type === 'BALANCE_CHECK' ? `Balance verified: ${a.details.balance} SOL. Asset remains liquid.` : a.details.advice}
+                                    <div>
+                                        <div className="text-sm font-black text-white mb-1 uppercase tracking-tight">{r.token}</div>
+                                        <div className="text-[10px] text-text-mute font-black tracking-widest">{r.protocol} • SOLANA_NETWORK</div>
                                     </div>
                                 </div>
                             ))}
@@ -297,40 +328,18 @@ export default function App() {
 
             </main>
 
-            <footer className="max-w-[1700px] mx-auto p-12 pt-0 border-t border-white/5">
-                <div className="mt-12 flex flex-col md:flex-row justify-between items-center gap-8">
-                    <div className="text-[10px] font-black text-text-ghost tracking-[0.5em] uppercase">
-                        DESIGNED_BY_AURORA_INTELLIGENCE // v4.0.0_STABLE
+            <footer className="max-w-[1800px] mx-auto p-12 pt-0 border-t border-white/5 mt-12">
+                <div className="flex flex-col md:flex-row justify-between items-center gap-10">
+                    <div className="text-xs font-black text-text-mute tracking-[0.4em] uppercase">
+                        DESIGNED_BY_AURORA_INTEL_LABS // v5.0.0_STABLE
                     </div>
-                    <div className="flex gap-12 font-black text-[9px] text-text-dim uppercase tracking-widest">
-                        <span className="cursor-pointer hover:text-white transition-colors">Core_Documentation</span>
-                        <span className="cursor-pointer hover:text-white transition-colors">Hedge_Vault_Audit</span>
-                        <span className="cursor-pointer hover:text-white transition-colors">API_Connectivity</span>
+                    <div className="flex gap-16 font-black text-[10px] text-text-soft uppercase tracking-[0.2em]">
+                        <span className="cursor-pointer hover:text-white transition-colors">Documentation_Vault</span>
+                        <span className="cursor-pointer hover:text-white transition-colors">Operational_Nodes</span>
+                        <span className="cursor-pointer hover:text-white transition-colors">System_Audit_Log</span>
                     </div>
                 </div>
             </footer>
         </div>
-    )
-}
-
-// Missing Lucide Icon
-function Target({ size, className }: { size: number, className?: string }) {
-    return (
-        <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width={size}
-            height={size}
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className={className}
-        >
-            <circle cx="12" cy="12" r="10" />
-            <circle cx="12" cy="12" r="6" />
-            <circle cx="12" cy="12" r="2" />
-        </svg>
     )
 }
