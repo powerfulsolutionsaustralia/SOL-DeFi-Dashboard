@@ -4,6 +4,7 @@ import bs58 from 'bs58';
 import fetch from 'cross-fetch';
 import dotenv from 'dotenv';
 import { BrainAgent } from './BrainAgent.js';
+import { GoalEngine } from './GoalEngine.js';
 
 dotenv.config();
 
@@ -15,10 +16,13 @@ export class SolanaAgent {
     private wallet: Keypair;
     private supabase: SupabaseClient;
     private brain: BrainAgent;
+    private goalEngine: GoalEngine;
     private currentBalance: number = 0;
+    private currentAPY: number = 8.4; // Track estimated APY
 
     constructor() {
         this.brain = new BrainAgent();
+        this.goalEngine = new GoalEngine();
         // Initialize Supabase
         const supabaseUrl = process.env.SUPABASE_URL;
         const supabaseKey = process.env.SUPABASE_KEY;
@@ -79,6 +83,13 @@ export class SolanaAgent {
                 action_type: 'BALANCE_CHECK',
                 details: { address: this.wallet.publicKey.toBase58(), balance: solBalance }
             });
+
+            // Update financial goal with current APY
+            const goal = await this.goalEngine.updateGoal(solBalance, this.currentAPY);
+            if (goal) {
+                console.log(`🎯 Goal Progress: ${solBalance.toFixed(4)} / ${goal.target_sol} SOL`);
+                console.log(`📅 Projected Timeline: ${goal.days_to_goal} days to reach goal at ${this.currentAPY}% APY`);
+            }
 
             return solBalance;
         } catch (error: any) {
