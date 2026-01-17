@@ -84,8 +84,11 @@ export default function App() {
     }, [])
 
     async function fetchData() {
+        console.log('🔍 Fetching data from Supabase...');
+        console.log('Supabase URL:', import.meta.env.VITE_SUPABASE_URL);
+
         // Get latest balance
-        const { data: balanceData } = await supabase
+        const { data: balanceData, error: balanceError } = await supabase
             .from('agent_actions')
             .select('details')
             .eq('action_type', 'BALANCE_CHECK')
@@ -93,6 +96,7 @@ export default function App() {
             .limit(1)
             .single()
 
+        console.log('Balance query result:', { balanceData, balanceError });
         if (balanceData) setBalance(balanceData.details.balance)
 
         // Get current goal
