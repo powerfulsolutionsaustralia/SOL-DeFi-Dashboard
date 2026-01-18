@@ -72,7 +72,7 @@ export class SolanaAgent {
             });
         }, 30000); // 30 seconds
 
-        // Scan every 5 minutes (changed from 30 seconds for DeFi)
+        // Scan every 2 minutes (Grok-Mode: Constant Hunting)
         setInterval(async () => {
             const solBalance = await this.checkBalance();
             if (solBalance && solBalance > 0.05) {
@@ -80,7 +80,7 @@ export class SolanaAgent {
             } else {
                 console.log("💤 Balance too low to farm. Minimum 0.05 SOL recommended.");
             }
-        }, 300000); // 5 minutes
+        }, 120000); // 2 minutes
     }
 
     async checkBalance() {
@@ -123,11 +123,11 @@ export class SolanaAgent {
             // Get all opportunities from all protocols
             const opportunities = await this.opportunityAggregator.scanAll();
 
-            // Filter to only safe, high-yield opportunities
+            // Filter to allow more aggressive, high-yield opportunities (Grok Mode)
             const filtered = this.opportunityAggregator.filter(opportunities, {
-                minAPY: 5,
-                maxRisk: 'medium',
-                minTVL: 1000000 // $1M minimum TVL
+                minAPY: 8,
+                maxRisk: 'high',
+                minTVL: 500000 // $500k minimum TVL for higher risk plays
             });
 
             // Log top opportunities to Supabase

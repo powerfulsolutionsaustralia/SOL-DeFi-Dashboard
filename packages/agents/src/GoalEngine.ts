@@ -52,7 +52,7 @@ export class GoalEngine {
      * Update or create the main goal
      */
     async updateGoal(currentBalance: number, currentAPY: number) {
-        const targetSOL = 1.0; // Default goal: grow to 1 SOL
+        const targetSOL = 100.0; // Moonshot Goal: 100 SOL (Grok Mode)
         const daysToGoal = this.calculateDaysToGoal(currentBalance, targetSOL, currentAPY);
 
         const goal: Goal = {
