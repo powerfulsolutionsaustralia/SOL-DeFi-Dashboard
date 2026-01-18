@@ -63,6 +63,15 @@ export class SolanaAgent {
             await this.scanDeFiYields();
         }
 
+        // Heartbeat every 30 seconds to show agent is alive
+        setInterval(async () => {
+            await this.supabase.from('agent_actions').insert({
+                agent_name: 'SolanaAgent',
+                action_type: 'HEARTBEAT',
+                details: { status: 'Agent running', balance: this.currentBalance }
+            });
+        }, 30000); // 30 seconds
+
         // Scan every 5 minutes (changed from 30 seconds for DeFi)
         setInterval(async () => {
             const solBalance = await this.checkBalance();
@@ -103,6 +112,13 @@ export class SolanaAgent {
     async scanDeFiYields() {
         console.log("🌊 Scanning DeFi protocols for yield opportunities...");
 
+        // Log scan start
+        await this.supabase.from('agent_actions').insert({
+            agent_name: 'SolanaAgent',
+            action_type: 'SCAN_START',
+            details: { status: 'Scanning DeFi protocols...' }
+        });
+
         try {
             // Get all opportunities from all protocols
             const opportunities = await this.opportunityAggregator.scanAll();
@@ -123,7 +139,30 @@ export class SolanaAgent {
                     apy: opp.apy,
                     created_at: new Date().toISOString()
                 });
+
+                // Log each opportunity found
+                await this.supabase.from('agent_actions').insert({
+                    agent_name: 'SolanaAgent',
+                    action_type: 'OPPORTUNITY_FOUND',
+                    details: {
+                        protocol: opp.protocol,
+                        name: opp.name,
+                        apy: opp.apy,
+                        risk: opp.risk
+                    }
+                });
             }
+
+            // Log scan complete
+            await this.supabase.from('agent_actions').insert({
+                agent_name: 'SolanaAgent',
+                action_type: 'SCAN_COMPLETE',
+                details: {
+                    totalFound: opportunities.length,
+                    filtered: filtered.length,
+                    status: `Found ${filtered.length} opportunities`
+                }
+            });
 
             if (filtered.length > 0) {
                 // Ask xAI Brain to analyze and select best opportunity
@@ -137,7 +176,9 @@ export class SolanaAgent {
 
                 // Update current APY based on selected opportunity
                 const topOpp = filtered[0];
-                this.currentAPY = topOpp.apy;
+                if (topOpp) {
+                    this.currentAPY = topOpp.apy;
+                }
 
                 // TODO: Execute deployment to selected protocol
                 // For now, just log the decision

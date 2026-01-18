@@ -8,6 +8,12 @@ const supabase = createClient(
     import.meta.env.VITE_SUPABASE_KEY
 )
 
+// Anonymize wallet address for public display
+function anonymizeAddress(address: string): string {
+    if (!address || address.length < 8) return address;
+    return `${address.slice(0, 4)}...${address.slice(-4)}`;
+}
+
 interface Goal {
     target_sol: number
     current_sol: number
@@ -261,6 +267,20 @@ export default function App() {
                     </div>
                     <div className="agent-status">
                         <div className="status-item">
+                            <span className="status-label">Wallet (Anonymous)</span>
+                            <span className="status-text">{activityFeed[0]?.details?.address ? anonymizeAddress(activityFeed[0].details.address) : '----...----'}</span>
+                        </div>
+                        <div className="status-item">
+                            <span className="status-label">Currently Executing</span>
+                            <span className="status-text">
+                                {activityFeed[0]?.action_type === 'SCAN_START' ? '🌊 Scanning protocols...' :
+                                    activityFeed[0]?.action_type === 'BRAIN_THINKING' ? '🧠 Consulting AI...' :
+                                        activityFeed[0]?.action_type === 'SCAN_COMPLETE' ? '✓ Scan complete' :
+                                            activityFeed[0]?.action_type === 'HEARTBEAT' ? '💓 Monitoring markets' :
+                                                'Monitoring for opportunities'}
+                            </span>
+                        </div>
+                        <div className="status-item">
                             <span className="status-label">Currently Executing</span>
                             <span className="status-text">Scanning Jupiter pools</span>
                         </div>
@@ -307,6 +327,39 @@ export default function App() {
                                     {new Date(item.created_at).toLocaleTimeString()}
                                 </div>
                                 <div className="feed-content">
+                                    {item.action_type === 'SCAN_START' && (
+                                        <>
+                                            <div className="feed-title">🌊 Scan Started</div>
+                                            <div className="feed-text">{item.details.status}</div>
+                                        </>
+                                    )}
+                                    {item.action_type === 'SCAN_COMPLETE' && (
+                                        <>
+                                            <div className="feed-title">✓ Scan Complete</div>
+                                            <div className="feed-text">{item.details.status}</div>
+                                            <div className="feed-meta">Total: {item.details.totalFound} | Filtered: {item.details.filtered}</div>
+                                        </>
+                                    )}
+                                    {item.action_type === 'OPPORTUNITY_FOUND' && (
+                                        <>
+                                            <div className="feed-title">⚡ Opportunity Found</div>
+                                            <div className="feed-text">{item.details.protocol}: {item.details.name} - {item.details.apy}% APY</div>
+                                            <div className="feed-meta">Risk: {item.details.risk}</div>
+                                        </>
+                                    )}
+                                    {item.action_type === 'BRAIN_THINKING' && (
+                                        <>
+                                            <div className="feed-title">🧠 AI Consultation</div>
+                                            <div className="feed-text">{item.details.status}</div>
+                                            <div className="feed-meta">Model: {item.details.model}</div>
+                                        </>
+                                    )}
+                                    {item.action_type === 'HEARTBEAT' && (
+                                        <>
+                                            <div className="feed-title">💓 Heartbeat</div>
+                                            <div className="feed-text">{item.details.status}</div>
+                                        </>
+                                    )}
                                     {item.action_type === 'STRATEGY_DECISION' && (
                                         <>
                                             <div className="feed-title">🧠 AI Decision</div>

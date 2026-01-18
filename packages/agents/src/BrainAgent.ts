@@ -33,6 +33,13 @@ export class BrainAgent {
 
         console.log("🧠 Brain is thinking (Consulting xAI)...");
 
+        // Log AI consultation start
+        await this.supabase.from('agent_actions').insert({
+            agent_name: 'BrainAgent',
+            action_type: 'BRAIN_THINKING',
+            details: { status: 'Consulting xAI for strategy...', model: 'grok-4-1-fast-reasoning' }
+        });
+
         const prompt = `
         You are a DeFi Strategy Expert on the Solana Network. 
         Your goal is to maximize wealth using the Compound Effect.
@@ -58,7 +65,7 @@ export class BrainAgent {
                 response_format: { type: "json_object" }
             });
 
-            const result = JSON.parse(completion.choices[0].message.content || '{}');
+            const result = JSON.parse(completion.choices[0]?.message?.content || '{}');
 
             // Log decision to Supabase for the Dashboard to see
             await this.supabase.from('agent_actions').insert({
